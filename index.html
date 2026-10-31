@@ -1,1 +1,141 @@
 
+
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nazim Luxury Fragrance</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f8f2e7;color:#392e20;font-family:Georgia,serif}
+header{background:#fffdf8;padding:18px;text-align:center;border-bottom:2px solid #c3a15c}
+header h2{color:#987331;margin:0}
+nav{padding:15px;text-align:center;background:#eee2ce}
+nav a{margin:10px;color:#735b30;text-decoration:none}
+.hero{text-align:center;padding:65px 20px;background:#f0e4d0}
+.hero h1{font-size:34px;color:#987331}
+.hero p{line-height:1.8}
+button{background:#b18a45;color:white;border:0;padding:12px 20px;border-radius:5px;cursor:pointer}
+.section{text-align:center;padding:35px 15px}
+.products{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;max-width:850px;margin:auto}
+.card{background:#fffdf8;padding:12px;border:1px solid #e5d6ba;border-radius:7px}
+.card img{width:100%;height:155px;object-fit:cover;border-radius:5px}
+.card h3{font-size:17px}
+.price{color:#987331;font-weight:bold}
+footer{background:#382e22;color:white;text-align:center;padding:25px;margin-top:35px}
+#cart{background:#fffdf8;padding:20px;max-width:500px;margin:20px auto;border:1px solid #d8c49f}
+input,textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #d8c49f}
+</style>
+</head>
+<body>
+
+<header>
+<h2>Nazim Luxury Fragrance</h2>
+<p>THE ART OF FINE FRAGRANCE</p>
+</header>
+
+<nav>
+<a href="#home">হোম</a>
+<a href="#shop">শপ</a>
+<a href="#cart">কার্ট</a>
+</nav>
+
+<section class="hero" id="home">
+<h1>সুগন্ধিতে থাকুক আপনার স্বতন্ত্রতা</h1>
+<p>আপনার পছন্দের আতর ও সুগন্ধির প্রিমিয়াম কালেকশন।</p>
+<a href="#shop"><button>কালেকশন দেখুন</button></a>
+</section>
+
+<section class="section" id="shop">
+<h2>আমাদের আতরের কালেকশন</h2>
+<p>আপনার পছন্দের সুগন্ধি বেছে নিন</p>
+
+<div class="products" id="products"></div>
+</section>
+
+<section class="section">
+<h2>আতর কম্বো কালেকশন</h2>
+<p>প্রিয়জনকে উপহার দিন সুন্দর সুগন্ধি</p>
+</section>
+
+<div id="cart">
+<h2>আপনার শপিং কার্ট</h2>
+<div id="items">কার্ট খালি</div>
+<h3 id="total">মোট: ৳0</h3>
+
+<h3>অর্ডারের তথ্য</h3>
+<form onsubmit="order(event)">
+<input id="name" placeholder="আপনার নাম" required>
+<input id="phone" placeholder="মোবাইল নম্বর" required>
+<textarea id="address" placeholder="সম্পূর্ণ ঠিকানা" required></textarea>
+<button type="submit">WhatsApp-এ অর্ডার করুন</button>
+</form>
+</div>
+
+<footer>
+<h3>Nazim Luxury Fragrance</h3>
+<p>সুগন্ধিতে আভিজাত্যের ছোঁয়া</p>
+<p>WhatsApp: 01881474813</p>
+</footer>
+
+<script>
+const products=[
+{id:1,name:"Premium Attar 1",price:150,img:"https://images.unsplash.com/photo-1594035910387-fea47794261f?w=500"},
+{id:2,name:"Premium Attar 2",price:200,img:"https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=500"},
+{id:3,name:"Luxury Attar",price:250,img:"https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=500"},
+{id:4,name:"Attar Combo",price:500,img:"https://images.unsplash.com/photo-1594035910387-fea47794261f?w=500"}
+];
+
+let cart=[];
+
+document.getElementById("products").innerHTML=products.map(p=>`
+<div class="card">
+<img src="${p.img}" alt="${p.name}">
+<h3>${p.name}</h3>
+<p class="price">৳${p.price}</p>
+<button onclick="add(${p.id})">কার্টে যোগ করুন</button>
+</div>`).join("");
+
+function add(id){
+let p=products.find(x=>x.id===id);
+let old=cart.find(x=>x.id===id);
+if(old)old.qty++;
+else cart.push({...p,qty:1});
+showCart();
+}
+
+function showCart(){
+document.getElementById("items").innerHTML=cart.length?
+cart.map(p=>`<p>${p.name} × ${p.qty} = ৳${p.price*p.qty}
+<button onclick="removeItem(${p.id})">বাদ দিন</button></p>`).join("")
+:"কার্ট খালি";
+
+let total=cart.reduce((s,p)=>s+p.price*p.qty,0);
+document.getElementById("total").innerText="মোট: ৳"+total;
+}
+
+function removeItem(id){
+cart=cart.filter(p=>p.id!==id);
+showCart();
+}
+
+function order(e){
+e.preventDefault();
+if(cart.length===0){alert("আগে কার্টে পণ্য যোগ করুন");return;}
+
+let list=cart.map(p=>p.name+" × "+p.qty+" = ৳"+p.price*p.qty).join("\n");
+let total=cart.reduce((s,p)=>s+p.price*p.qty,0);
+
+let msg="নতুন অর্ডার - Nazim Luxury Fragrance\n"+
+list+"\nমোট: ৳"+total+
+"\nনাম: "+document.getElementById("name").value+
+"\nফোন: "+document.getElementById("phone").value+
+"\nঠিকানা: "+document.getElementById("address").value;
+
+window.open("https://wa.me/8801881474813?text="+encodeURIComponent(msg),"_blank");
+}
+</script>
+
+</body>
+</html>
