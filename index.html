@@ -1,141 +1,380 @@
 
-
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nazim Luxury Fragrance</title>
+<title>Nazim Luxury Fragrances</title>
+<meta name="description" content="Discover premium attars and luxury fragrances at Nazim Luxury Fragrances.">
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:#f8f2e7;color:#392e20;font-family:Georgia,serif}
-header{background:#fffdf8;padding:18px;text-align:center;border-bottom:2px solid #c3a15c}
-header h2{color:#987331;margin:0}
-nav{padding:15px;text-align:center;background:#eee2ce}
-nav a{margin:10px;color:#735b30;text-decoration:none}
-.hero{text-align:center;padding:65px 20px;background:#f0e4d0}
-.hero h1{font-size:34px;color:#987331}
-.hero p{line-height:1.8}
-button{background:#b18a45;color:white;border:0;padding:12px 20px;border-radius:5px;cursor:pointer}
-.section{text-align:center;padding:35px 15px}
-.products{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;max-width:850px;margin:auto}
-.card{background:#fffdf8;padding:12px;border:1px solid #e5d6ba;border-radius:7px}
-.card img{width:100%;height:155px;object-fit:cover;border-radius:5px}
-.card h3{font-size:17px}
-.price{color:#987331;font-weight:bold}
-footer{background:#382e22;color:white;text-align:center;padding:25px;margin-top:35px}
-#cart{background:#fffdf8;padding:20px;max-width:500px;margin:20px auto;border:1px solid #d8c49f}
-input,textarea{width:100%;padding:12px;margin:7px 0;border:1px solid #d8c49f}
+:root{
+  --gold:#c9a45c;
+  --black:#111;
+  --cream:#f8f6f1;
+  --white:#fff;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  font-family:Arial,Helvetica,sans-serif;
+  color:#222;background:#fff;
+}
+a{text-decoration:none;color:inherit}
+button{cursor:pointer;font:inherit}
+.topbar{
+  background:#111;color:#ddd;text-align:center;
+  padding:9px;font-size:12px;letter-spacing:1px;
+}
+header{
+  background:#101010;color:white;padding:17px 5%;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:15px;flex-wrap:wrap;
+}
+.logo{font-size:21px;font-weight:bold;color:var(--gold);letter-spacing:1px}
+.logo small{display:block;color:#eee;font-size:10px;letter-spacing:4px;margin-top:5px}
+.header-actions{display:flex;gap:18px;align-items:center;font-size:14px}
+.header-actions button{background:none;border:0;color:white}
+.cart-count{
+  background:var(--gold);color:#111;border-radius:50%;
+  padding:3px 7px;font-size:11px;margin-left:3px;
+}
+.search-wrap{background:#f1eee8;padding:13px 5%;display:flex;justify-content:center}
+.search-wrap input{
+  width:100%;max-width:650px;padding:13px 16px;
+  border:1px solid #ddd;border-radius:4px;font-size:14px;
+}
+nav{
+  display:flex;justify-content:center;gap:32px;flex-wrap:wrap;
+  padding:16px;background:white;border-bottom:1px solid #eee;
+}
+nav a{font-size:12px;font-weight:bold;letter-spacing:1px}
+nav a:hover{color:#b28a42}
+.hero{
+  min-height:430px;background:
+  linear-gradient(90deg,rgba(0,0,0,.83),rgba(0,0,0,.15)),
+  url('https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=1600&q=85')
+  center/cover;
+  display:flex;align-items:center;padding:60px 8%;color:white;
+}
+.hero-content{max-width:520px}
+.hero .eyebrow{color:var(--gold);letter-spacing:4px;font-size:12px}
+.hero h1{font-size:48px;line-height:1.15;margin:20px 0}
+.hero p{color:#ddd;line-height:1.8;font-size:15px}
+.gold-btn{
+  display:inline-block;background:var(--gold);color:#111;
+  padding:14px 27px;margin-top:25px;border:0;
+  font-weight:bold;letter-spacing:1px;border-radius:2px;
+}
+.gold-btn:hover{background:#e0bd79}
+.features{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  background:#f8f6f1;padding:25px 5%;gap:15px;text-align:center;
+}
+.feature strong{display:block;font-size:13px;margin-bottom:7px}
+.feature span{font-size:11px;color:#777}
+.section{padding:65px 5%}
+.section-heading{text-align:center;margin-bottom:35px}
+.section-heading span{font-size:11px;color:#b28a42;letter-spacing:3px}
+.section-heading h2{font-size:27px;margin:10px 0}
+.section-heading p{font-size:13px;color:#777}
+.products{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px;
+}
+.product{
+  border:1px solid #eee;background:white;
+  transition:.25s;position:relative;
+}
+.product:hover{box-shadow:0 8px 25px #00000012;transform:translateY(-4px)}
+.product img{width:100%;height:235px;object-fit:cover;background:#f4f1eb}
+.product-info{padding:15px}
+.product-info h3{font-size:15px;margin-bottom:8px}
+.product-info p{font-size:12px;color:#888;margin-bottom:12px}
+.price{color:#a47b32;font-weight:bold;font-size:16px}
+.old-price{font-size:12px;color:#999;text-decoration:line-through;margin-left:7px}
+.product-actions{display:flex;gap:8px;margin-top:15px}
+.product-actions button{
+  flex:1;padding:10px 5px;font-size:11px;
+  border:1px solid #b28a42;background:white;color:#222;
+}
+.product-actions button:first-child{background:#111;color:white;border-color:#111}
+.product-actions button:hover{background:var(--gold);color:#111;border-color:var(--gold)}
+.tag{
+  position:absolute;top:12px;left:12px;background:#111;
+  color:white;padding:6px 9px;font-size:10px;letter-spacing:1px;
+}
+.banner{
+  background:#151515;color:white;padding:55px 8%;
+  text-align:center;
+}
+.banner h2{font-size:29px;color:var(--gold);margin-bottom:12px}
+.banner p{font-size:14px;color:#ccc;line-height:1.7}
+.about{
+  background:var(--cream);padding:60px 8%;text-align:center;
+}
+.about h2{font-size:26px;margin-bottom:15px}
+.about p{max-width:700px;margin:auto;color:#666;line-height:1.9;font-size:14px}
+footer{background:#101010;color:#ddd;padding:45px 6% 20px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:35px}
+footer h3{color:var(--gold);margin-bottom:15px;font-size:15px}
+footer p,footer a{font-size:13px;color:#aaa;line-height:2}
+footer a{display:block}
+.copyright{
+  border-top:1px solid #333;margin-top:30px;padding-top:18px;
+  text-align:center;color:#888;font-size:11px;
+}
+.cart-panel{
+  position:fixed;right:-420px;top:0;width:min(390px,100%);
+  height:100%;background:white;z-index:20;padding:22px;
+  box-shadow:-5px 0 25px #0002;transition:.3s;overflow:auto;
+}
+.cart-panel.open{right:0}
+.cart-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
+.cart-head button{border:0;background:none;font-size:25px}
+.cart-item{display:flex;justify-content:space-between;gap:10px;padding:14px 0;border-bottom:1px solid #eee;font-size:13px}
+.cart-total{display:flex;justify-content:space-between;margin:22px 0;font-weight:bold}
+.checkout-btn{width:100%;padding:14px;background:#111;color:white;border:0}
+.overlay{display:none;position:fixed;inset:0;background:#0007;z-index:19}
+.overlay.show{display:block}
+@media(max-width:850px){
+  .products{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+  .product img{height:190px}
+  .hero{min-height:360px}
+  .hero h1{font-size:37px}
+  .footer-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  header{padding:15px 4%}
+  .logo{font-size:17px}
+  .header-actions{gap:12px}
+  nav{gap:17px;padding:14px 8px}
+  nav a{font-size:10px}
+  .hero{min-height:350px;padding:35px 6%}
+  .hero h1{font-size:33px}
+  .section{padding:45px 4%}
+  .product img{height:155px}
+  .product-info{padding:10px}
+  .product-info h3{font-size:13px}
+  .product-actions button{font-size:10px}
+  .features{padding:20px 3%;gap:8px}
+  .feature strong{font-size:11px}
+  .feature span{font-size:9px}
+  .footer-grid{grid-template-columns:1fr}
+}
 </style>
 </head>
 <body>
 
+<div class="topbar">WELCOME TO NAZIM LUXURY FRAGRANCES</div>
+
 <header>
-<h2>Nazim Luxury Fragrance</h2>
-<p>THE ART OF FINE FRAGRANCE</p>
+  <a href="#" class="logo">
+    NAZIM LUXURY
+    <small>FRAGRANCES</small>
+  </a>
+  <div class="header-actions">
+    <a href="#products">Shop</a>
+    <button onclick="toggleCart()">Cart <span class="cart-count" id="cartCount">0</span></button>
+  </div>
 </header>
 
-<nav>
-<a href="#home">হোম</a>
-<a href="#shop">শপ</a>
-<a href="#cart">কার্ট</a>
-</nav>
-
-<section class="hero" id="home">
-<h1>সুগন্ধিতে থাকুক আপনার স্বতন্ত্রতা</h1>
-<p>আপনার পছন্দের আতর ও সুগন্ধির প্রিমিয়াম কালেকশন।</p>
-<a href="#shop"><button>কালেকশন দেখুন</button></a>
-</section>
-
-<section class="section" id="shop">
-<h2>আমাদের আতরের কালেকশন</h2>
-<p>আপনার পছন্দের সুগন্ধি বেছে নিন</p>
-
-<div class="products" id="products"></div>
-</section>
-
-<section class="section">
-<h2>আতর কম্বো কালেকশন</h2>
-<p>প্রিয়জনকে উপহার দিন সুন্দর সুগন্ধি</p>
-</section>
-
-<div id="cart">
-<h2>আপনার শপিং কার্ট</h2>
-<div id="items">কার্ট খালি</div>
-<h3 id="total">মোট: ৳0</h3>
-
-<h3>অর্ডারের তথ্য</h3>
-<form onsubmit="order(event)">
-<input id="name" placeholder="আপনার নাম" required>
-<input id="phone" placeholder="মোবাইল নম্বর" required>
-<textarea id="address" placeholder="সম্পূর্ণ ঠিকানা" required></textarea>
-<button type="submit">WhatsApp-এ অর্ডার করুন</button>
-</form>
+<div class="search-wrap">
+  <input id="searchInput" type="search" placeholder="Search your favourite fragrance..." oninput="searchProducts()">
 </div>
 
+<nav>
+  <a href="#new-arrivals">NEW ARRIVALS</a>
+  <a href="#products">ALL PRODUCTS</a>
+  <a href="#best-selling">BEST SELLING</a>
+  <a href="#combo">COMBO PACKAGE</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-content">
+    <div class="eyebrow">THE ART OF LUXURY SCENT</div>
+    <h1>Discover Your Signature Fragrance</h1>
+    <p>Experience the beauty of premium attars and unforgettable fragrances. Find the scent that defines you.</p>
+    <a class="gold-btn" href="#products">EXPLORE COLLECTION</a>
+  </div>
+</section>
+
+<div class="features">
+  <div class="feature"><strong>PREMIUM QUALITY</strong><span>Carefully selected fragrances</span></div>
+  <div class="feature"><strong>DELIVERY ALL OVER BANGLADESH</strong><span>Order from anywhere</span></div>
+  <div class="feature"><strong>WHATSAPP SUPPORT</strong><span>We are here to help</span></div>
+</div>
+
+<section class="section" id="new-arrivals">
+  <div class="section-heading">
+    <span>JUST ARRIVED</span>
+    <h2>New Arrivals</h2>
+    <p>Explore our latest fragrance collection</p>
+  </div>
+  <div class="products" id="newProducts"></div>
+</section>
+
+<section class="section" id="products">
+  <div class="section-heading">
+    <span>OUR COLLECTION</span>
+    <h2>All Products</h2>
+    <p>Find your favourite fragrance</p>
+  </div>
+  <div class="products" id="allProducts"></div>
+</section>
+
+<section class="banner">
+  <h2>A Fragrance That Speaks For You</h2>
+  <p>Luxury is not just a feeling. It is a signature.</p>
+  <a href="#combo" class="gold-btn">DISCOVER COMBO</a>
+</section>
+
+<section class="section" id="best-selling">
+  <div class="section-heading">
+    <span>CUSTOMER FAVOURITES</span>
+    <h2>Best Selling</h2>
+    <p>Our popular fragrance selections</p>
+  </div>
+  <div class="products" id="bestProducts"></div>
+</section>
+
+<section class="section" id="combo">
+  <div class="section-heading">
+    <span>SPECIAL COLLECTION</span>
+    <h2>Combo Package</h2>
+    <p>Discover more fragrances in one package</p>
+  </div>
+  <div class="products" id="comboProducts"></div>
+</section>
+
+<section class="about">
+  <h2>About Nazim Luxury Fragrances</h2>
+  <p>Welcome to Nazim Luxury Fragrances. We bring you a collection of beautiful and premium fragrances. Our goal is to make every moment memorable with the perfect scent. Choose your favourite fragrance and order today.</p>
+</section>
+
 <footer>
-<h3>Nazim Luxury Fragrance</h3>
-<p>সুগন্ধিতে আভিজাত্যের ছোঁয়া</p>
-<p>WhatsApp: 01881474813</p>
+  <div class="footer-grid">
+    <div>
+      <h3>NAZIM LUXURY FRAGRANCES</h3>
+      <p>Discover premium fragrances and make every moment unforgettable.</p>
+    </div>
+    <div>
+      <h3>QUICK LINKS</h3>
+      <a href="#new-arrivals">New Arrivals</a>
+      <a href="#products">All Products</a>
+      <a href="#best-selling">Best Selling</a>
+      <a href="#combo">Combo Package</a>
+    </div>
+    <div>
+      <h3>CONTACT US</h3>
+      <p>WhatsApp: 01881474813</p>
+      <a href="https://wa.me/8801881474813" target="_blank">WhatsApp Order</a>
+      <a href="https://www.facebook.com/share/1FcD6rvZbJ/" target="_blank">Facebook Page</a>
+    </div>
+  </div>
+  <div class="copyright">© 2026 Nazim Luxury Fragrances. All Rights Reserved.</div>
 </footer>
 
+<div class="overlay" id="overlay" onclick="toggleCart()"></div>
+<div class="cart-panel" id="cartPanel">
+  <div class="cart-head">
+    <h2>Your Cart</h2>
+    <button onclick="toggleCart()">×</button>
+  </div>
+  <div id="cartItems"></div>
+  <div class="cart-total"><span>Total</span><span id="cartTotal">৳0</span></div>
+  <button class="checkout-btn" onclick="checkout()">ORDER ON WHATSAPP</button>
+</div>
+
 <script>
-const products=[
-{id:1,name:"Premium Attar 1",price:150,img:"https://images.unsplash.com/photo-1594035910387-fea47794261f?w=500"},
-{id:2,name:"Premium Attar 2",price:200,img:"https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=500"},
-{id:3,name:"Luxury Attar",price:250,img:"https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=500"},
-{id:4,name:"Attar Combo",price:500,img:"https://images.unsplash.com/photo-1594035910387-fea47794261f?w=500"}
+const WHATSAPP = "8801881474813";
+
+/* SAMPLE PRODUCTS: Replace names, prices and images with your real products. */
+const products = [
+  {id:1,name:"Premium Oud",price:350,category:"new",image:"https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=80",description:"Elegant premium fragrance"},
+  {id:2,name:"Royal Musk",price:300,category:"best",image:"https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=600&q=80",description:"A beautiful musk fragrance"},
+  {id:3,name:"Luxury Attar",price:250,category:"new",image:"https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?auto=format&fit=crop&w=600&q=80",description:"A memorable luxury scent"},
+  {id:4,name:"Attar Combo",price:750,category:"combo",image:"https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?auto=format&fit=crop&w=600&q=80",description:"Special fragrance combo"},
+  {id:5,name:"Classic Musk",price:280,category:"best",image:"https://images.unsplash.com/photo-1615634260167-c8cdede054de?auto=format&fit=crop&w=600&q=80",description:"Classic everyday fragrance"},
+  {id:6,name:"Oud Collection",price:500,category:"combo",image:"https://images.unsplash.com/photo-1616949755610-8c9bbc08f138?auto=format&fit=crop&w=600&q=80",description:"A special collection"},
+  {id:7,name:"Royal Fragrance",price:400,category:"new",image:"https://images.unsplash.com/photo-1590736969955-71cc94901144?auto=format&fit=crop&w=600&q=80",description:"Smooth and long lasting"},
+  {id:8,name:"Super Combo",price:950,category:"combo",image:"https://images.unsplash.com/photo-1590156221828-8d06c6b3f9d4?auto=format&fit=crop&w=600&q=80",description:"Explore multiple fragrances"}
 ];
 
-let cart=[];
+let cart = [];
 
-document.getElementById("products").innerHTML=products.map(p=>`
-<div class="card">
-<img src="${p.img}" alt="${p.name}">
-<h3>${p.name}</h3>
-<p class="price">৳${p.price}</p>
-<button onclick="add(${p.id})">কার্টে যোগ করুন</button>
-</div>`).join("");
-
-function add(id){
-let p=products.find(x=>x.id===id);
-let old=cart.find(x=>x.id===id);
-if(old)old.qty++;
-else cart.push({...p,qty:1});
-showCart();
+function productCard(p){
+  return `
+  <div class="product">
+    ${p.category==="new"?'<span class="tag">NEW</span>':""}
+    <img src="${p.image}" alt="${p.name}" loading="lazy">
+    <div class="product-info">
+      <h3>${p.name}</h3>
+      <p>${p.description}</p>
+      <span class="price">৳${p.price}</span>
+      <div class="product-actions">
+        <button onclick="addToCart(${p.id})">ADD TO CART</button>
+        <button onclick="orderNow(${p.id})">ORDER NOW</button>
+      </div>
+    </div>
+  </div>`;
 }
 
-function showCart(){
-document.getElementById("items").innerHTML=cart.length?
-cart.map(p=>`<p>${p.name} × ${p.qty} = ৳${p.price*p.qty}
-<button onclick="removeItem(${p.id})">বাদ দিন</button></p>`).join("")
-:"কার্ট খালি";
-
-let total=cart.reduce((s,p)=>s+p.price*p.qty,0);
-document.getElementById("total").innerText="মোট: ৳"+total;
+function showProducts(){
+  document.getElementById("newProducts").innerHTML =
+    products.filter(p=>p.category==="new").map(productCard).join("");
+  document.getElementById("allProducts").innerHTML =
+    products.map(productCard).join("");
+  document.getElementById("bestProducts").innerHTML =
+    products.filter(p=>p.category==="best").map(productCard).join("");
+  document.getElementById("comboProducts").innerHTML =
+    products.filter(p=>p.category==="combo").map(productCard).join("");
 }
-
+function searchProducts(){
+  const q=document.getElementById("searchInput").value.toLowerCase();
+  const found=products.filter(p=>p.name.toLowerCase().includes(q));
+  document.getElementById("allProducts").innerHTML =
+    found.length?found.map(productCard).join():"<p>No products found.</p>";
+}
+function addToCart(id){
+  const p=products.find(x=>x.id===id);
+  const existing=cart.find(x=>x.id===id);
+  if(existing) existing.qty++;
+  else cart.push({...p,qty:1});
+  updateCart();
+}
+function updateCart(){
+  document.getElementById("cartCount").textContent =
+    cart.reduce((s,p)=>s+p.qty,0);
+  document.getElementById("cartItems").innerHTML =
+    cart.length?cart.map(p=>`
+      <div class="cart-item">
+        <div><strong>${p.name}</strong><br>৳${p.price} × ${p.qty}</div>
+        <button onclick="removeItem(${p.id})">Remove</button>
+      </div>`).join():"Your cart is empty.";
+  document.getElementById("cartTotal").textContent =
+    "৳"+cart.reduce((s,p)=>s+p.price*p.qty,0);
+}
 function removeItem(id){
-cart=cart.filter(p=>p.id!==id);
-showCart();
+  cart=cart.filter(p=>p.id!==id);
+  updateCart();
 }
-
-function order(e){
-e.preventDefault();
-if(cart.length===0){alert("আগে কার্টে পণ্য যোগ করুন");return;}
-
-let list=cart.map(p=>p.name+" × "+p.qty+" = ৳"+p.price*p.qty).join("\n");
-let total=cart.reduce((s,p)=>s+p.price*p.qty,0);
-
-let msg="নতুন অর্ডার - Nazim Luxury Fragrance\n"+
-list+"\nমোট: ৳"+total+
-"\nনাম: "+document.getElementById("name").value+
-"\nফোন: "+document.getElementById("phone").value+
-"\nঠিকানা: "+document.getElementById("address").value;
-
-window.open("https://wa.me/8801881474813?text="+encodeURIComponent(msg),"_blank");
+function toggleCart(){
+  document.getElementById("cartPanel").classList.toggle("open");
+  document.getElementById("overlay").classList.toggle("show");
 }
+function orderNow(id){
+  const p=products.find(x=>x.id===id);
+  const msg=`Hello, I want to order:\n${p.name}\nPrice: ৳${p.price}`;
+  window.open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg),"_blank");
+}
+function checkout(){
+  if(!cart.length){alert("Your cart is empty!");return;}
+  const lines=cart.map(p=>`${p.name} - ৳${p.price} x ${p.qty}`);
+  const total=cart.reduce((s,p)=>s+p.price*p.qty,0);
+  const msg="Hello Nazim Luxury Fragrances, I want to order:\n\n"+
+    lines.join("\n")+"\n\nTotal: ৳"+total;
+  window.open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg),"_blank");
+}
+showProducts();
+updateCart();
 </script>
-
 </body>
 </html>
