@@ -21,9 +21,14 @@ body{
 a{text-decoration:none;color:inherit}
 button{cursor:pointer;font:inherit}
 .topbar{
-  background:#111;color:#ddd;text-align:center;
-  padding:9px;font-size:12px;letter-spacing:1px;
+  background:var(--gold);color:#111;overflow:hidden;white-space:nowrap;
+  padding:9px 0;font-size:13px;font-weight:bold;letter-spacing:0;
 }
+.topbar-track{display:inline-flex;width:max-content;animation:topbar-scroll 50s linear infinite}
+.topbar-group{display:inline-flex}
+.topbar-group span{padding-right:50px}
+@keyframes topbar-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.topbar-track{animation:none}}
 header{
   background:#101010;color:white;padding:17px 5%;
   display:flex;align-items:center;justify-content:space-between;
@@ -170,7 +175,7 @@ footer a{display:block}
 </head>
 <body>
 
-<div class="topbar">WELCOME TO NAZIM LUXURY FRAGRANCES</div>
+<div class="topbar"><div class="topbar-track"><div class="topbar-group"><span>নাজিম লাক্সারি ফ্র্যাগরেন্স এ আপনাকে স্বাগতম। যেকোনো একটি কম্বো প্যাকেজ অর্ডার করলেই পাচ্ছেন মাত্র ৪৯৳ সারাদেশে হোম ডেলিভারি সুবিধা। ✦</span><span>নাজিম লাক্সারি ফ্র্যাগরেন্স এ আপনাকে স্বাগতম। যেকোনো একটি কম্বো প্যাকেজ অর্ডার করলেই পাচ্ছেন মাত্র ৪৯৳ সারাদেশে হোম ডেলিভারি সুবিধা। ✦</span><span>নাজিম লাক্সারি ফ্র্যাগরেন্স এ আপনাকে স্বাগতম। যেকোনো একটি কম্বো প্যাকেজ অর্ডার করলেই পাচ্ছেন মাত্র ৪৯৳ সারাদেশে হোম ডেলিভারি সুবিধা। ✦</span></div><div class="topbar-group" aria-hidden="true"><span>নাজিম লাক্সারি ফ্র্যাগরেন্স এ আপনাকে স্বাগতম। যেকোনো একটি কম্বো প্যাকেজ অর্ডার করলেই পাচ্ছেন মাত্র ৪৯৳ সারাদেশে হোম ডেলিভারি সুবিধা। ✦</span><span>নাজিম লাক্সারি ফ্র্যাগরেন্স এ আপনাকে স্বাগতম। যেকোনো একটি কম্বো প্যাকেজ অর্ডার করলেই পাচ্ছেন মাত্র ৪৯৳ সারাদেশে হোম ডেলিভারি সুবিধা। ✦</span><span>নাজিম লাক্সারি ফ্র্যাগরেন্স এ আপনাকে স্বাগতম। যেকোনো একটি কম্বো প্যাকেজ অর্ডার করলেই পাচ্ছেন মাত্র ৪৯৳ সারাদেশে হোম ডেলিভারি সুবিধা। ✦</span></div></div></div>
 
 <header>
   <a href="#" class="logo">
@@ -421,6 +426,28 @@ async function loadProducts(){
   }
 }
 
+/* ---------- Site settings (top bar text) ---------- */
+function setTopbar(text){
+  const reps = Math.max(3, Math.ceil(2200 / (text.length * 8 + 70)));
+  const group = `<span>${esc(text)} ✦</span>`.repeat(reps);
+  document.querySelector(".topbar").innerHTML =
+    `<div class="topbar-track"><div class="topbar-group">${group}</div>` +
+    `<div class="topbar-group" aria-hidden="true">${group}</div></div>`;
+}
+
+async function loadSettings(){
+  if(!supabaseClient) return;
+  try{
+    const { data, error } = await supabaseClient.from("settings").select("*");
+    if(error) throw error;
+    const map = {};
+    (data || []).forEach(r => { map[String(r.key).toLowerCase()] = r.value; });
+    if(map.topbar_text) setTopbar(String(map.topbar_text));
+  }catch(e){
+    console.warn("Could not load settings:", (e && (e.message || e.details)) || e);
+  }
+}
+
 /* ---------- Rendering ---------- */
 function productCard(p){
   const id = esc(sid(p.id));
@@ -547,6 +574,7 @@ setLogo(".about-logo", LOGO_ABOUT_URL);
 
 /* ---------- Start ---------- */
 loadCart();
+loadSettings();
 showProducts();   // show sample products immediately
 updateCart();
 loadProducts().then(() => {
