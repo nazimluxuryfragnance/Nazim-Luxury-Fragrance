@@ -159,6 +159,8 @@ footer a{display:block}
 .overlay.show{display:block}
 
 .img-click,.pname{cursor:pointer}
+mark.hit{background:none;color:#d11;font-weight:bold}
+body.searching #new-arrivals,body.searching #best-selling,body.searching #combo,body.searching .banner{display:none}
 .pname:hover{color:#a47b32}
 .rating-line{font-size:12px;color:#888;margin-bottom:8px;cursor:pointer}
 .stars{color:#c9a45c;letter-spacing:1px}
@@ -599,7 +601,7 @@ function productCard(p){
     ${soldOut?'<span class="tag">SOLD OUT</span>':(p.section==="new"?'<span class="tag">NEW</span>':"")}
     <div class="img-click" onclick="openProduct('${id}')">${imageBlock(p)}</div>
     <div class="product-info">
-      <h3 class="pname" onclick="openProduct('${id}')">${esc(p.name)}</h3>
+      <h3 class="pname" onclick="openProduct('${id}')">${highlight(p.name, currentQuery)}</h3>
       ${p.size?`<span class="size">${esc(p.size)}</span>`:""}
       <div class="rating-line" onclick="openProduct('${id}')">${ratingLine(p)}</div>
       <p>${esc(p.description)}</p>
@@ -628,19 +630,53 @@ function showProducts(){
 }
 
 let searchScrolled = false;
+let currentQuery = "";
+
+/* Wraps the matching part of a name in <mark> (case-insensitive), everything escaped. */
+function highlight(text, q){
+  text = String(text == null ? "" : text);
+  if(!q) return esc(text);
+  const lower = text.toLowerCase(), ql = q.toLowerCase();
+  if(lower.length !== text.length) return esc(text);
+  let out = "", i = 0;
+  while(true){
+    const j = lower.indexOf(ql, i);
+    if(j < 0){ out += esc(text.slice(i)); break; }
+    out += esc(text.slice(i, j)) + '<mark class="hit">' + esc(text.slice(j, j + ql.length)) + "</mark>";
+    i = j + ql.length;
+  }
+  return out;
+}
+
 function searchProducts(){
-  const q = document.getElementById("searchInput").value.trim().toLowerCase();
-  const found = products.filter(p =>
-    [p.name, p.description, p.category].join(" ").toLowerCase().includes(q)
-  );
+  const q = document.getElementById("searchInput").value.trim();
+  const head = document.querySelector("#products .section-heading");
+
+  // search box is empty: back to the normal page
+  if(!q){
+    currentQuery = "";
+    searchScrolled = false;
+    document.body.classList.remove("searching");
+    head.querySelector("h2").textContent = "All Products";
+    head.querySelector("p").textContent = "Find your favourite fragrance";
+    showProducts();
+    return;
+  }
+
+  currentQuery = q;
+  document.body.classList.add("searching");
+  head.querySelector("h2").textContent = "Search Results";
+  head.querySelector("p").textContent = "";
+
+  // match the product NAME only, upper/lower case does not matter
+  const found = products.filter(p => p.name.toLowerCase().includes(q.toLowerCase()));
   document.getElementById("allProducts").innerHTML =
-    found.length ? found.map(productCard).join("") : '<p class="empty-msg">No products found.</p>';
-  // jump to the results once when the person starts typing
-  if(q && !searchScrolled){
+    found.length ? found.map(productCard).join("") : '<p class="empty-msg">Not found</p>';
+
+  if(!searchScrolled){
     searchScrolled = true;
     document.getElementById("products").scrollIntoView({behavior:"smooth", block:"start"});
   }
-  if(!q) searchScrolled = false;
 }
 
 /* ---------- Cart ---------- */
