@@ -97,6 +97,7 @@ nav a:hover{color:#b28a42}
 .product img{width:100%;height:235px;object-fit:cover;background:#f4f1eb}
 .product-info{padding:15px}
 .product-info h3{font-size:15px;margin-bottom:8px}
+.size{display:inline-block;background:#f4f1eb;color:#7a5c1e;border:1px solid #e6d9bd;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:bold;margin-bottom:8px}
 .product-info p{font-size:12px;color:#888;margin-bottom:12px}
 .price{color:#a47b32;font-weight:bold;font-size:16px}
 .old-price{font-size:12px;color:#999;text-decoration:line-through;margin-left:7px}
@@ -108,8 +109,18 @@ nav a:hover{color:#b28a42}
 .product-actions button:first-child{background:#111;color:white;border-color:#111}
 .product-actions button:hover{background:var(--gold);color:#111;border-color:var(--gold)}
 .product-actions button:disabled,.product-actions button:disabled:hover{opacity:.45;cursor:not-allowed;background:#eee;color:#777;border-color:#ccc}
+.slider{position:relative}
+.slides{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.slides::-webkit-scrollbar{display:none}
+.slide{flex:0 0 100%;scroll-snap-align:center}
+.s-btn{position:absolute;top:50%;transform:translateY(-50%);width:30px;height:30px;border:0;border-radius:50%;background:#000a;color:#fff;font-size:20px;line-height:1;display:flex;align-items:center;justify-content:center;z-index:2}
+.s-prev{left:8px}
+.s-next{right:8px}
+.dots{position:absolute;bottom:9px;left:0;right:0;text-align:center;z-index:2;pointer-events:none}
+.dots i{display:inline-block;width:7px;height:7px;margin:0 3px;border-radius:50%;background:#fff9}
+.dots i.on{background:var(--gold)}
 .tag{
-  position:absolute;top:12px;left:12px;background:#111;
+  z-index:3;position:absolute;top:12px;left:12px;background:#111;
   color:white;padding:6px 9px;font-size:10px;letter-spacing:1px;
 }
 .banner{
@@ -367,6 +378,16 @@ function showNotice(msg){
   n.textContent = msg;
 }
 
+/* Main image + extra images (column "images": URLs separated by comma or new line). */
+function buildImages(row){
+  const main = String(pick(row, ["image url","image_url","image","imageurl","img","photo","picture"])).trim();
+  const raw = pick(row, ["images","extra images","extra_images","more images","gallery"]);
+  const extra = Array.isArray(raw) ? raw : String(raw).split(/[\n,]+/);
+  return [main, ...extra.map(x => String(x).trim())]
+    .filter(Boolean)
+    .filter((u, i, a) => a.indexOf(u) === i);
+}
+
 /* Reads a column ignoring upper/lower case (Name = name = NAME). */
 function pick(row, names){
   const keys = Object.keys(row);
@@ -407,6 +428,8 @@ async function loadProducts(){
           category,
           section,
           image: String(pick(p, ["image url","image_url","image","imageurl","img","photo","picture"])),
+          images: buildImages(p),
+          size: String(pick(p, ["size","volume","ml"])).trim(),
           description: String(pick(p, ["description","details","desc"])),
           stock: stockRaw === "" ? null : Number(stockRaw)
         };
@@ -449,15 +472,41 @@ async function loadSettings(){
 }
 
 /* ---------- Rendering ---------- */
+function imageBlock(p){
+  const imgs = (p.images && p.images.length) ? p.images : [p.image || FALLBACK_IMG];
+  const tag = u => `<img src="${esc(u)}" alt="${esc(p.name)}" loading="lazy" onerror="this.onerror=null;this.src=FALLBACK_IMG">`;
+  if(imgs.length < 2) return tag(imgs[0]);
+  return `<div class="slider">
+    <div class="slides">${imgs.map(u => `<div class="slide">${tag(u)}</div>`).join("")}</div>
+    <button type="button" class="s-btn s-prev" onclick="slideBy(this,-1)" aria-label="Previous image">&#8249;</button>
+    <button type="button" class="s-btn s-next" onclick="slideBy(this,1)" aria-label="Next image">&#8250;</button>
+    <div class="dots">${imgs.map((_, i) => `<i class="${i===0?"on":""}"></i>`).join("")}</div>
+  </div>`;
+}
+
+function slideBy(btn, dir){
+  const el = btn.parentElement.querySelector(".slides");
+  el.scrollBy({left: dir * el.clientWidth, behavior: "smooth"});
+}
+
+// keep the dots in sync while swiping (scroll events do not bubble, so use capture)
+document.addEventListener("scroll", e => {
+  const el = e.target;
+  if(!el || !el.classList || !el.classList.contains("slides")) return;
+  const i = Math.round(el.scrollLeft / el.clientWidth);
+  el.parentElement.querySelectorAll(".dots i").forEach((d, k) => d.classList.toggle("on", k === i));
+}, true);
+
 function productCard(p){
   const id = esc(sid(p.id));
   const soldOut = p.stock != null && p.stock <= 0;
   return `
   <div class="product">
     ${soldOut?'<span class="tag">SOLD OUT</span>':(p.section==="new"?'<span class="tag">NEW</span>':"")}
-    <img src="${esc(p.image||FALLBACK_IMG)}" alt="${esc(p.name)}" loading="lazy" onerror="this.onerror=null;this.src=FALLBACK_IMG">
+    ${imageBlock(p)}
     <div class="product-info">
       <h3>${esc(p.name)}</h3>
+      ${p.size?`<span class="size">${esc(p.size)}</span>`:""}
       <p>${esc(p.description)}</p>
       <span class="price">৳${esc(p.price)}</span>
       <div class="product-actions">
@@ -517,7 +566,7 @@ function addToCart(id){
   if(!p) return;
   const existing = cart.find(x => sid(x.id) === sid(id));
   if(existing) existing.qty++;
-  else cart.push({id:p.id,name:p.name,price:p.price,qty:1});
+  else cart.push({id:p.id,name:p.name,size:p.size||"",price:p.price,qty:1});
   updateCart();
 }
 
@@ -526,7 +575,7 @@ function updateCart(){
   document.getElementById("cartItems").innerHTML = cart.length
     ? cart.map(p=>`
       <div class="cart-item">
-        <div><strong>${esc(p.name)}</strong><br>৳${esc(p.price)} × ${esc(p.qty)}</div>
+        <div><strong>${esc(p.name)}</strong>${p.size?` (${esc(p.size)})`:""}<br>৳${esc(p.price)} × ${esc(p.qty)}</div>
         <button type="button" onclick="removeItem('${esc(sid(p.id))}')">Remove</button>
       </div>`).join("")
     : "Your cart is empty.";
@@ -556,12 +605,12 @@ const ORDER_FOOTER =
 function orderNow(id){
   const p = findProduct(id);
   if(!p) return;
-  openWhatsApp(`Hello Nazim Luxury Fragrances, I want to order:\n\n${p.name}\nPrice: ৳${p.price}\nQuantity: 1`+ORDER_FOOTER);
+  openWhatsApp(`Hello Nazim Luxury Fragrances, I want to order:\n\n${p.name}${p.size?"\nSize: "+p.size:""}\nPrice: ৳${p.price}\nQuantity: 1`+ORDER_FOOTER);
 }
 
 function checkout(){
   if(!cart.length){ alert("Your cart is empty!"); return; }
-  const lines = cart.map(p=>`${p.name} - ৳${p.price} x ${p.qty}`);
+  const lines = cart.map(p=>`${p.name}${p.size?" ("+p.size+")":""} - ৳${p.price} x ${p.qty}`);
   const total = cart.reduce((s,p)=>s+p.price*p.qty,0);
   openWhatsApp("Hello Nazim Luxury Fragrances, I want to order:\n\n"+
     lines.join("\n")+"\n\nTotal: ৳"+total+ORDER_FOOTER);
