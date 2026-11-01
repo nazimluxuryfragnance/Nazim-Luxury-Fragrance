@@ -29,7 +29,10 @@ header{
   display:flex;align-items:center;justify-content:space-between;
   gap:15px;flex-wrap:wrap;
 }
-.logo{font-size:21px;font-weight:bold;color:var(--gold);letter-spacing:1px}
+.logo{display:flex;align-items:center;gap:12px;font-size:21px;font-weight:bold;color:var(--gold);letter-spacing:1px}
+.site-logo{height:46px;width:auto;display:block}
+.about-logo{height:90px;width:auto;display:block;margin:0 auto 18px}
+.site-logo[hidden],.about-logo[hidden]{display:none}
 .logo small{display:block;color:#eee;font-size:10px;letter-spacing:4px;margin-top:5px}
 .header-actions{display:flex;gap:18px;align-items:center;font-size:14px}
 .header-actions button{background:none;border:0;color:white}
@@ -171,8 +174,9 @@ footer a{display:block}
 
 <header>
   <a href="#" class="logo">
-    NAZIM LUXURY
-    <small>FRAGRANCES</small>
+    <img class="site-logo" alt="Nazim Luxury Fragrances logo" hidden>
+    <span>NAZIM LUXURY
+    <small>FRAGRANCES</small></span>
   </a>
   <div class="header-actions">
     <a href="#products">Shop</a>
@@ -249,6 +253,7 @@ footer a{display:block}
 </section>
 
 <section class="about">
+  <img class="about-logo" alt="Nazim Luxury Fragrances logo" hidden>
   <h2>About Nazim Luxury Fragrances</h2>
   <p>Welcome to Nazim Luxury Fragrances. We bring you a collection of beautiful and premium fragrances. Our goal is to make every moment memorable with the perfect scent. Choose your favourite fragrance and order today.</p>
 </section>
@@ -294,6 +299,9 @@ const SUPABASE_URL = "https://eknfimlojduysyhnsths.supabase.co";
 // Publishable (public) key only. NEVER put a service_role / secret key here.
 const SUPABASE_KEY = "sb_publishable_o7UlzZz__4aylMzGQyzurA_kvFk57g6";
 const PRODUCTS_TABLE = "Products"; // Supabase table name (case-sensitive)
+// Logo links (Supabase Storage public URLs)
+const LOGO_HEADER_URL = "https://eknfimlojduysyhnsths.supabase.co/storage/v1/object/public/Products%20images/NLF%20White%20Logo.png";  // on the dark header
+const LOGO_ABOUT_URL  = "https://eknfimlojduysyhnsths.supabase.co/storage/v1/object/public/Products%20images/NLF%20Golden%20Logo.png"; // on the light About section
 
 /* Sample products: shown only if Supabase has no products or fails to load. */
 const SAMPLE_PRODUCTS = [
@@ -524,6 +532,18 @@ function checkout(){
   openWhatsApp("Hello Nazim Luxury Fragrances, I want to order:\n\n"+
     lines.join("\n")+"\n\nTotal: ৳"+total+ORDER_FOOTER);
 }
+
+/* ---------- Logo ---------- */
+function setLogo(selector, url){
+  if(!url) return;
+  document.querySelectorAll(selector).forEach(img => {
+    img.onerror = () => { img.hidden = true; };
+    img.src = url;
+    img.hidden = false;
+  });
+}
+setLogo(".site-logo", LOGO_HEADER_URL);
+setLogo(".about-logo", LOGO_ABOUT_URL);
 
 /* ---------- Start ---------- */
 loadCart();
