@@ -78,12 +78,14 @@ nav a:hover{color:#b28a42}
   background:#f8f6f1;padding:25px 5%;gap:15px;text-align:center;
 }
 .feature strong{display:block;font-size:13px;margin-bottom:7px}
+.feature-link{display:block;color:inherit}
+.feature-link strong{color:#1f8a4c}
 .feature span{font-size:11px;color:#777}
 .section{padding:65px 5%}
 .section[hidden]{display:none}
 .section-heading{text-align:center;margin-bottom:35px}
 .section-heading span{font-size:11px;color:#b28a42;letter-spacing:3px}
-.section-heading h2{font-size:27px;margin:10px 0}
+.section-heading h2{display:inline-block;background:var(--gold);color:#111;font-size:18px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;padding:13px 32px;margin:12px 0;border-radius:2px}
 .section-heading p{font-size:13px;color:#777}
 .products{
   display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px;
@@ -313,12 +315,6 @@ body.lock{overflow:hidden}
   <div class="products" id="allProducts"></div>
 </section>
 
-<section class="banner">
-  <h2>A Fragrance That Speaks For You</h2>
-  <p>Luxury is not just a feeling. It is a signature.</p>
-  <a href="#combo" class="gold-btn">DISCOVER COMBO</a>
-</section>
-
 <section class="section" id="best-selling">
   <div class="section-heading">
     <span>CUSTOMER FAVOURITES</span>
@@ -346,7 +342,7 @@ body.lock{overflow:hidden}
 <div class="features">
   <div class="feature"><strong>PREMIUM QUALITY</strong><span>Carefully selected fragrances</span></div>
   <div class="feature"><strong>DELIVERY ALL OVER BANGLADESH</strong><span>Order from anywhere</span></div>
-  <div class="feature"><strong>WHATSAPP SUPPORT</strong><span>We are here to help</span></div>
+  <a class="feature feature-link" href="https://wa.me/8801881474813?text=Hello%20Nazim%20Luxury%20Fragrances%2C%20I%20need%20help." target="_blank" rel="noopener"><strong>WHATSAPP SUPPORT &#8250;</strong><span>We are here to help</span></a>
 </div>
 
 <footer>
@@ -647,7 +643,7 @@ function fillSection(containerId, list){
 
 function showProducts(){
   fillSection("newProducts", products.filter(p=>p.section==="new"));
-  fillSection("allProducts", products);
+  fillSection("allProducts", products.filter(p => p.section !== "combo"));
   fillSection("bestProducts", products.filter(p=>p.section==="best"));
   fillSection("comboProducts", products.filter(p=>p.section==="combo"));
 }
