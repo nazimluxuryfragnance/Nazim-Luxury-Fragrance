@@ -157,6 +157,62 @@ footer a{display:block}
 .checkout-btn{width:100%;padding:14px;background:#111;color:white;border:0}
 .overlay{display:none;position:fixed;inset:0;background:#0007;z-index:19}
 .overlay.show{display:block}
+
+.img-click,.pname{cursor:pointer}
+.pname:hover{color:#a47b32}
+.rating-line{font-size:12px;color:#888;margin-bottom:8px;cursor:pointer}
+.stars{color:#c9a45c;letter-spacing:1px}
+.stars .off{color:#ddd}
+.qty{display:inline-flex;align-items:center;border:1px solid #ddd;border-radius:4px;overflow:hidden;background:#fff}
+.qty button{width:32px;height:32px;border:0;background:#f4f1eb;font-size:18px;color:#111;line-height:1}
+.qty span{min-width:34px;text-align:center;font-size:14px;font-weight:bold}
+.cart-item .ci-info{line-height:1.6}
+.cart-item .ci-side{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.cart-item .qty button{color:#111;background:#f4f1eb;font-size:18px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111;color:#fff;padding:11px 18px;border-radius:30px;font-size:13px;z-index:60;box-shadow:0 4px 18px #0005;max-width:90%}
+body.lock{overflow:hidden}
+.modal,.lightbox{position:fixed;inset:0}
+.modal[hidden],.lightbox[hidden]{display:none}
+.modal{background:#000a;z-index:30;display:flex;align-items:flex-end;justify-content:center}
+.modal-box{background:#fff;width:min(640px,100%);max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;padding:18px;position:relative}
+.modal-close{position:sticky;top:0;float:right;width:36px;height:36px;border:0;border-radius:50%;background:#111;color:#fff;font-size:22px;line-height:1;z-index:3}
+.m-main{background:#f4f1eb;border-radius:8px;overflow:hidden;cursor:zoom-in;position:relative;clear:both}
+.m-main img{width:100%;height:320px;object-fit:contain;display:block}
+.m-hint{position:absolute;bottom:8px;right:8px;background:#000a;color:#fff;font-size:11px;padding:4px 9px;border-radius:20px}
+.m-thumbs{display:flex;gap:8px;margin-top:10px;overflow-x:auto}
+.m-thumbs img{width:62px;height:62px;object-fit:cover;border:2px solid transparent;border-radius:6px;cursor:pointer;flex:0 0 auto;background:#f4f1eb}
+.m-thumbs img.on{border-color:var(--gold)}
+.m-name{font-size:22px;margin:14px 0 6px}
+.m-price{color:#a47b32;font-weight:bold;font-size:21px;margin:8px 0}
+.m-desc{color:#666;font-size:14px;line-height:1.7;margin-bottom:14px}
+.m-buy{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0 22px}
+.m-buy .btn{flex:1;min-width:120px;padding:12px 8px;font-size:12px;font-weight:bold;border:1px solid #111;background:#111;color:#fff}
+.m-buy .btn.alt{background:#fff;color:#222;border-color:#b28a42}
+.m-buy .btn:disabled{opacity:.45;cursor:not-allowed}
+.rv-head{font-size:17px;margin:6px 0 12px;border-top:1px solid #eee;padding-top:16px}
+.rv-item{border-bottom:1px solid #f0ede6;padding:10px 0;font-size:13px}
+.rv-item .rv-meta{color:#999;font-size:11px;margin-left:6px}
+.rv-item p{margin-top:5px;color:#444;line-height:1.6;white-space:pre-wrap;word-break:break-word}
+.rv-empty{color:#999;font-size:13px;padding:6px 0 12px}
+.rf{background:#f8f6f1;border-radius:8px;padding:14px;margin-top:14px}
+.rf h4{font-size:14px;margin-bottom:10px}
+.star-input button{border:0;background:none;font-size:30px;color:#ddd;padding:0 2px;line-height:1}
+.star-input button.on{color:var(--gold)}
+.rf input,.rf textarea{width:100%;padding:11px;border:1px solid #ddd;border-radius:4px;font:inherit;font-size:14px;margin-top:10px;background:#fff}
+.rf textarea{min-height:80px;resize:vertical}
+.rf .gold-btn{margin-top:12px;width:100%;cursor:pointer}
+.rf-msg{font-size:13px;margin-top:10px;color:#a33}
+.rf-msg.ok{color:#2a7a3b}
+.lightbox{background:#000;z-index:40;display:flex;align-items:center;justify-content:center}
+.lb-stage{width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none}
+.lb-stage img{max-width:100%;max-height:100%;user-select:none;-webkit-user-select:none;transform-origin:center center;will-change:transform}
+.lb-close{position:absolute;top:14px;right:14px;width:42px;height:42px;border:0;border-radius:50%;background:#fff3;color:#fff;font-size:26px;z-index:3}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border:0;border-radius:50%;background:#fff3;color:#fff;font-size:26px;z-index:3}
+.lb-prev{left:10px}
+.lb-next{right:10px}
+.lb-tools{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:3}
+.lb-tools button{min-width:46px;height:42px;border:0;border-radius:22px;background:#fff3;color:#fff;font-size:18px;padding:0 14px}
+@media(min-width:700px){.modal{align-items:center}.modal-box{border-radius:12px}}
 @media(max-width:850px){
   .products{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
   .product img{height:190px}
@@ -308,6 +364,25 @@ footer a{display:block}
   <button type="button" class="checkout-btn" onclick="checkout()">ORDER ON WHATSAPP</button>
 </div>
 
+<div class="modal" id="productModal" hidden onclick="if(event.target===this)closeProduct()">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-label="Product details">
+    <button type="button" class="modal-close" onclick="closeProduct()" aria-label="Close">×</button>
+    <div id="modalBody"></div>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" hidden>
+  <button type="button" class="lb-close" onclick="closeLightbox()" aria-label="Close">×</button>
+  <button type="button" class="lb-nav lb-prev" id="lbPrev" onclick="lbNav(-1)" aria-label="Previous">&#8249;</button>
+  <button type="button" class="lb-nav lb-next" id="lbNext" onclick="lbNav(1)" aria-label="Next">&#8250;</button>
+  <div class="lb-stage" id="lbStage"><img id="lbImg" alt="" draggable="false"></div>
+  <div class="lb-tools">
+    <button type="button" onclick="lbZoom(1/1.5)" aria-label="Zoom out">−</button>
+    <button type="button" onclick="lbReset()">Reset</button>
+    <button type="button" onclick="lbZoom(1.5)" aria-label="Zoom in">+</button>
+  </div>
+</div>
+
 <script>
 /* ---------- Settings ---------- */
 const WHATSAPP = "8801881474813";
@@ -339,6 +414,8 @@ const FALLBACK_IMG = "data:image/svg+xml;utf8," + encodeURIComponent(
 
 let products = SAMPLE_PRODUCTS.slice();
 let cart = [];
+let usingDb = false;          // true when products came from Supabase
+let ratingStats = {};         // { productId: {sum, count} }
 
 /* ---------- Helpers ---------- */
 function esc(v){
@@ -415,6 +492,7 @@ async function loadProducts(){
         const k = Object.keys(r).find(x => x.toLowerCase() === "is_active");
         return !(k && r[k] === false);
       });
+      usingDb = true;
       products = rows.map(p => {
         const category = String(pick(p, ["category","type"])).trim();
         // optional "section" column: new / best / combo
@@ -472,14 +550,18 @@ async function loadSettings(){
 }
 
 /* ---------- Rendering ---------- */
+function productImages(p){
+  return (p.images && p.images.length) ? p.images : [p.image || FALLBACK_IMG];
+}
+
 function imageBlock(p){
-  const imgs = (p.images && p.images.length) ? p.images : [p.image || FALLBACK_IMG];
+  const imgs = productImages(p);
   const tag = u => `<img src="${esc(u)}" alt="${esc(p.name)}" loading="lazy" onerror="this.onerror=null;this.src=FALLBACK_IMG">`;
   if(imgs.length < 2) return tag(imgs[0]);
   return `<div class="slider">
     <div class="slides">${imgs.map(u => `<div class="slide">${tag(u)}</div>`).join("")}</div>
-    <button type="button" class="s-btn s-prev" onclick="slideBy(this,-1)" aria-label="Previous image">&#8249;</button>
-    <button type="button" class="s-btn s-next" onclick="slideBy(this,1)" aria-label="Next image">&#8250;</button>
+    <button type="button" class="s-btn s-prev" onclick="event.stopPropagation();slideBy(this,-1)" aria-label="Previous image">&#8249;</button>
+    <button type="button" class="s-btn s-next" onclick="event.stopPropagation();slideBy(this,1)" aria-label="Next image">&#8250;</button>
     <div class="dots">${imgs.map((_, i) => `<i class="${i===0?"on":""}"></i>`).join("")}</div>
   </div>`;
 }
@@ -497,16 +579,29 @@ document.addEventListener("scroll", e => {
   el.parentElement.querySelectorAll(".dots i").forEach((d, k) => d.classList.toggle("on", k === i));
 }, true);
 
+function starsHtml(avg){
+  const full = Math.max(0, Math.min(5, Math.round(avg)));
+  return '<span class="stars">' + "★".repeat(full) + '<span class="off">' + "★".repeat(5 - full) + "</span></span>";
+}
+
+function ratingLine(p){
+  const st = ratingStats[sid(p.id)];
+  return st && st.count
+    ? `${starsHtml(st.sum / st.count)} <span>${(st.sum / st.count).toFixed(1)} (${st.count})</span>`
+    : `<span class="stars"><span class="off">★★★★★</span></span> <span>No reviews yet</span>`;
+}
+
 function productCard(p){
   const id = esc(sid(p.id));
   const soldOut = p.stock != null && p.stock <= 0;
   return `
   <div class="product">
     ${soldOut?'<span class="tag">SOLD OUT</span>':(p.section==="new"?'<span class="tag">NEW</span>':"")}
-    ${imageBlock(p)}
+    <div class="img-click" onclick="openProduct('${id}')">${imageBlock(p)}</div>
     <div class="product-info">
-      <h3>${esc(p.name)}</h3>
+      <h3 class="pname" onclick="openProduct('${id}')">${esc(p.name)}</h3>
       ${p.size?`<span class="size">${esc(p.size)}</span>`:""}
+      <div class="rating-line" onclick="openProduct('${id}')">${ratingLine(p)}</div>
       <p>${esc(p.description)}</p>
       <span class="price">৳${esc(p.price)}</span>
       <div class="product-actions">
@@ -561,23 +656,75 @@ function loadCart(){
   }catch(e){ cart = []; }
 }
 
-function addToCart(id){
+function maxQty(p){
+  return (p && p.stock != null) ? Math.max(0, p.stock) : 99;
+}
+
+function toast(msg){
+  let t = document.getElementById("toast");
+  if(!t){
+    t = document.createElement("div");
+    t.id = "toast";
+    t.className = "toast";
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.hidden = false;
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => { t.hidden = true; }, 1800);
+}
+
+function addToCart(id, qty){
+  qty = Math.max(1, parseInt(qty, 10) || 1);
   const p = findProduct(id);
   if(!p) return;
+  const max = maxQty(p);
   const existing = cart.find(x => sid(x.id) === sid(id));
-  if(existing) existing.qty++;
-  else cart.push({id:p.id,name:p.name,size:p.size||"",price:p.price,qty:1});
+  const have = existing ? existing.qty : 0;
+  if(have + qty > max){
+    toast("Only " + max + " available in stock");
+    qty = max - have;
+    if(qty <= 0) return;
+  }
+  if(existing) existing.qty += qty;
+  else cart.push({id:p.id,name:p.name,size:p.size||"",price:p.price,qty});
+  updateCart();
+  toast("Added to cart ✓");
+}
+
+function changeQty(id, delta){
+  const item = cart.find(x => sid(x.id) === sid(id));
+  if(!item) return;
+  const max = maxQty(findProduct(id));
+  const next = item.qty + delta;
+  if(next <= 0){ removeItem(id); return; }
+  if(next > max){ toast("Only " + max + " available in stock"); return; }
+  item.qty = next;
   updateCart();
 }
 
 function updateCart(){
   document.getElementById("cartCount").textContent = cart.reduce((s,p)=>s+p.qty,0);
   document.getElementById("cartItems").innerHTML = cart.length
-    ? cart.map(p=>`
+    ? cart.map(p=>{
+        const id = esc(sid(p.id));
+        return `
       <div class="cart-item">
-        <div><strong>${esc(p.name)}</strong>${p.size?` (${esc(p.size)})`:""}<br>৳${esc(p.price)} × ${esc(p.qty)}</div>
-        <button type="button" onclick="removeItem('${esc(sid(p.id))}')">Remove</button>
-      </div>`).join("")
+        <div class="ci-info">
+          <strong>${esc(p.name)}</strong>${p.size?` (${esc(p.size)})`:""}<br>
+          ৳${esc(p.price)} each<br>
+          <b>৳${esc(p.price * p.qty)}</b>
+        </div>
+        <div class="ci-side">
+          <div class="qty">
+            <button type="button" onclick="changeQty('${id}',-1)" aria-label="Decrease">−</button>
+            <span>${esc(p.qty)}</span>
+            <button type="button" onclick="changeQty('${id}',1)" aria-label="Increase">+</button>
+          </div>
+          <button type="button" onclick="removeItem('${id}')">Remove</button>
+        </div>
+      </div>`;
+      }).join("")
     : "Your cart is empty.";
   document.getElementById("cartTotal").textContent =
     "৳" + cart.reduce((s,p)=>s+p.price*p.qty,0);
@@ -602,10 +749,13 @@ function openWhatsApp(msg){
 const ORDER_FOOTER =
   "\n\nName:\nPhone:\nFull address:\n\nPlease confirm the delivery charge. Thank you.";
 
-function orderNow(id){
+function orderNow(id, qty){
+  qty = Math.max(1, parseInt(qty, 10) || 1);
   const p = findProduct(id);
   if(!p) return;
-  openWhatsApp(`Hello Nazim Luxury Fragrances, I want to order:\n\n${p.name}${p.size?"\nSize: "+p.size:""}\nPrice: ৳${p.price}\nQuantity: 1`+ORDER_FOOTER);
+  const max = maxQty(p);
+  if(qty > max){ toast("Only " + max + " available in stock"); return; }
+  openWhatsApp(`Hello Nazim Luxury Fragrances, I want to order:\n\n${p.name}${p.size?"\nSize: "+p.size:""}\nPrice: ৳${p.price}\nQuantity: ${qty}\nTotal: ৳${p.price*qty}`+ORDER_FOOTER);
 }
 
 function checkout(){
@@ -615,6 +765,280 @@ function checkout(){
   openWhatsApp("Hello Nazim Luxury Fragrances, I want to order:\n\n"+
     lines.join("\n")+"\n\nTotal: ৳"+total+ORDER_FOOTER);
 }
+
+/* ---------- Product details popup ---------- */
+const MODAL = {id:null, qty:1, img:0, rating:0};
+
+function openProduct(id){
+  const p = findProduct(id);
+  if(!p) return;
+  MODAL.id = p.id; MODAL.qty = 1; MODAL.img = 0; MODAL.rating = 0;
+  const imgs = productImages(p);
+  const soldOut = p.stock != null && p.stock <= 0;
+  const pid = esc(sid(p.id));
+  document.getElementById("modalBody").innerHTML = `
+    <div class="m-main" onclick="openLightbox(MODAL.img)">
+      <img id="mMainImg" src="${esc(imgs[0])}" alt="${esc(p.name)}" onerror="this.onerror=null;this.src=FALLBACK_IMG">
+      <span class="m-hint">Tap to zoom</span>
+    </div>
+    ${imgs.length > 1 ? `<div class="m-thumbs">${imgs.map((u,i)=>`<img src="${esc(u)}" alt="" class="${i===0?"on":""}" onclick="setModalImg(${i})" onerror="this.onerror=null;this.src=FALLBACK_IMG">`).join("")}</div>` : ""}
+    <h2 class="m-name">${esc(p.name)}</h2>
+    ${p.size ? `<span class="size">${esc(p.size)}</span>` : ""}
+    <div class="rating-line" id="mRating" style="cursor:default">${ratingLine(p)}</div>
+    <div class="m-price">৳${esc(p.price)}</div>
+    <p class="m-desc">${esc(p.description)}</p>
+    <div class="m-buy">
+      <div class="qty">
+        <button type="button" onclick="modalQty(-1)" aria-label="Decrease">−</button>
+        <span id="mQty">1</span>
+        <button type="button" onclick="modalQty(1)" aria-label="Increase">+</button>
+      </div>
+      <button type="button" class="btn" onclick="addToCart('${pid}', MODAL.qty)" ${soldOut?"disabled":""}>${soldOut?"SOLD OUT":"ADD TO CART"}</button>
+      <button type="button" class="btn alt" onclick="orderNow('${pid}', MODAL.qty)" ${soldOut?"disabled":""}>ORDER NOW</button>
+    </div>
+    <h3 class="rv-head">Customer Reviews</h3>
+    <div id="reviewList"><p class="rv-empty">Loading reviews...</p></div>
+    <div id="reviewFormWrap"></div>`;
+  document.getElementById("productModal").hidden = false;
+  document.body.classList.add("lock");
+  document.querySelector(".modal-box").scrollTop = 0;
+  renderReviewForm(p);
+  loadReviews(p);
+}
+
+function closeProduct(){
+  document.getElementById("productModal").hidden = true;
+  if(document.getElementById("lightbox").hidden) document.body.classList.remove("lock");
+}
+
+function setModalImg(i){
+  const p = findProduct(MODAL.id);
+  if(!p) return;
+  const imgs = productImages(p);
+  MODAL.img = i;
+  document.getElementById("mMainImg").src = imgs[i];
+  document.querySelectorAll(".m-thumbs img").forEach((t,k) => t.classList.toggle("on", k === i));
+}
+
+function modalQty(d){
+  const p = findProduct(MODAL.id);
+  const max = maxQty(p);
+  const next = MODAL.qty + d;
+  if(next < 1) return;
+  if(next > max){ toast("Only " + max + " available in stock"); return; }
+  MODAL.qty = next;
+  document.getElementById("mQty").textContent = next;
+}
+
+/* ---------- Reviews ---------- */
+function fmtDate(v){
+  try{ return new Date(v).toLocaleDateString("en-GB", {day:"numeric", month:"short", year:"numeric"}); }
+  catch(e){ return ""; }
+}
+
+async function loadReviews(p){
+  const box = document.getElementById("reviewList");
+  if(!usingDb || !supabaseClient){
+    box.innerHTML = '<p class="rv-empty">Reviews are not available right now.</p>';
+    return;
+  }
+  try{
+    const { data, error } = await supabaseClient.from("reviews")
+      .select("name,rating,comment,created_at")
+      .eq("product_id", p.id)
+      .order("created_at", {ascending:false})
+      .limit(50);
+    if(error) throw error;
+    if(MODAL.id !== p.id) return;   // another product was opened meanwhile
+    if(!data || !data.length){
+      box.innerHTML = '<p class="rv-empty">No reviews yet. Be the first to review this fragrance!</p>';
+      return;
+    }
+    const avg = data.reduce((s,r)=>s+Number(r.rating||0),0) / data.length;
+    document.getElementById("mRating").innerHTML =
+      `${starsHtml(avg)} <span>${avg.toFixed(1)} (${data.length})</span>`;
+    box.innerHTML = data.map(r => `
+      <div class="rv-item">
+        ${starsHtml(Number(r.rating)||0)} <strong>${esc(r.name)}</strong><span class="rv-meta">${esc(fmtDate(r.created_at))}</span>
+        ${r.comment ? `<p>${esc(r.comment)}</p>` : ""}
+      </div>`).join("");
+  }catch(e){
+    console.warn("Could not load reviews:", (e && (e.message || e.details)) || e);
+    box.innerHTML = '<p class="rv-empty">Could not load reviews.</p>';
+  }
+}
+
+function reviewedKey(id){ return "nazim_reviewed_" + sid(id); }
+
+function renderReviewForm(p){
+  const wrap = document.getElementById("reviewFormWrap");
+  let done = false;
+  try{ done = !!localStorage.getItem(reviewedKey(p.id)); }catch(e){}
+  if(!usingDb){ wrap.innerHTML = ""; return; }
+  if(done){
+    wrap.innerHTML = '<div class="rf"><p class="rf-msg ok">You have already reviewed this product. Thank you!</p></div>';
+    return;
+  }
+  wrap.innerHTML = `
+    <div class="rf">
+      <h4>Write a review</h4>
+      <div class="star-input" id="starInput">
+        ${[1,2,3,4,5].map(n => `<button type="button" onclick="setStar(${n})" aria-label="${n} star">★</button>`).join("")}
+      </div>
+      <input id="rvName" maxlength="60" placeholder="Your name">
+      <textarea id="rvComment" maxlength="500" placeholder="Share your experience with this fragrance..."></textarea>
+      <button type="button" class="gold-btn" id="rvSubmit" onclick="submitReview()">SUBMIT REVIEW</button>
+      <p class="rf-msg" id="rvMsg"></p>
+    </div>`;
+}
+
+function setStar(n){
+  MODAL.rating = n;
+  document.querySelectorAll("#starInput button").forEach((b,i) => b.classList.toggle("on", i < n));
+}
+
+async function submitReview(){
+  const msg = document.getElementById("rvMsg");
+  const btn = document.getElementById("rvSubmit");
+  msg.className = "rf-msg";
+  const name = document.getElementById("rvName").value.trim();
+  const comment = document.getElementById("rvComment").value.trim();
+  if(!MODAL.rating){ msg.textContent = "Please select a star rating."; return; }
+  if(!name){ msg.textContent = "Please enter your name."; return; }
+  if(!supabaseClient || !usingDb){ msg.textContent = "Reviews are not available right now."; return; }
+  btn.disabled = true;
+  msg.textContent = "Submitting...";
+  try{
+    const { error } = await supabaseClient.from("reviews").insert({
+      product_id: MODAL.id, name, rating: MODAL.rating, comment: comment || null
+    });
+    if(error) throw error;
+    try{ localStorage.setItem(reviewedKey(MODAL.id), "1"); }catch(e){}
+    document.getElementById("reviewFormWrap").innerHTML =
+      '<div class="rf"><p class="rf-msg ok">Thank you! Your review will appear after approval.</p></div>';
+  }catch(e){
+    console.warn("Review failed:", (e && (e.message || e.details)) || e);
+    btn.disabled = false;
+    msg.textContent = "Could not submit your review. Please try again later.";
+  }
+}
+
+async function loadRatingStats(){
+  if(!supabaseClient || !usingDb) return;
+  try{
+    const { data, error } = await supabaseClient.from("reviews").select("product_id,rating").limit(5000);
+    if(error) throw error;
+    const stats = {};
+    (data || []).forEach(r => {
+      const k = sid(r.product_id);
+      (stats[k] = stats[k] || {sum:0, count:0});
+      stats[k].sum += Number(r.rating) || 0;
+      stats[k].count++;
+    });
+    ratingStats = stats;
+    showProducts();
+  }catch(e){
+    console.warn("Could not load ratings:", (e && (e.message || e.details)) || e);
+  }
+}
+
+/* ---------- Image zoom (lightbox) ---------- */
+const LB = {imgs:[], i:0, s:1, x:0, y:0};
+const lbPts = new Map();
+let lbLastDist = 0, lbLastTap = 0, lbMoved = false;
+
+function lbApply(){
+  document.getElementById("lbImg").style.transform =
+    `translate(${LB.x}px, ${LB.y}px) scale(${LB.s})`;
+}
+function lbReset(){ LB.s = 1; LB.x = 0; LB.y = 0; lbApply(); }
+function lbZoom(f){
+  LB.s = Math.min(5, Math.max(1, LB.s * f));
+  if(LB.s === 1){ LB.x = 0; LB.y = 0; }
+  lbApply();
+}
+function lbShow(){
+  document.getElementById("lbImg").src = LB.imgs[LB.i];
+  const multi = LB.imgs.length > 1;
+  document.getElementById("lbPrev").hidden = !multi;
+  document.getElementById("lbNext").hidden = !multi;
+  lbReset();
+}
+function lbNav(d){
+  const n = LB.imgs.length;
+  LB.i = (LB.i + d + n) % n;
+  lbShow();
+}
+function openLightbox(i){
+  const p = findProduct(MODAL.id);
+  if(!p) return;
+  LB.imgs = productImages(p);
+  LB.i = i || 0;
+  document.getElementById("lightbox").hidden = false;
+  document.body.classList.add("lock");
+  lbShow();
+}
+function closeLightbox(){
+  document.getElementById("lightbox").hidden = true;
+  if(document.getElementById("productModal").hidden) document.body.classList.remove("lock");
+  setModalImg(LB.i);
+}
+
+(function(){
+  const stage = document.getElementById("lbStage");
+  const dist = () => { const [a,b] = [...lbPts.values()]; return Math.hypot(a.x-b.x, a.y-b.y); };
+  stage.addEventListener("pointerdown", e => {
+    stage.setPointerCapture(e.pointerId);
+    lbPts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    lbMoved = false;
+    if(lbPts.size === 2) lbLastDist = dist();
+  });
+  stage.addEventListener("pointermove", e => {
+    if(!lbPts.has(e.pointerId)) return;
+    const prev = lbPts.get(e.pointerId);
+    lbPts.set(e.pointerId, {x:e.clientX, y:e.clientY});
+    if(Math.abs(e.clientX - prev.x) + Math.abs(e.clientY - prev.y) > 2) lbMoved = true;
+    if(lbPts.size === 2){
+      const d = dist();
+      if(lbLastDist) LB.s = Math.min(5, Math.max(1, LB.s * d / lbLastDist));
+      lbLastDist = d;
+      if(LB.s === 1){ LB.x = 0; LB.y = 0; }
+      lbApply();
+    }else if(lbPts.size === 1 && LB.s > 1){
+      LB.x += e.clientX - prev.x;
+      LB.y += e.clientY - prev.y;
+      lbApply();
+    }
+  });
+  const end = e => {
+    const wasSingle = lbPts.size === 1;
+    lbPts.delete(e.pointerId);
+    lbLastDist = 0;
+    if(wasSingle && !lbMoved && e.type === "pointerup"){
+      const now = Date.now();
+      if(now - lbLastTap < 300){            // double tap: zoom in / out
+        if(LB.s > 1) lbReset(); else { LB.s = 2.5; lbApply(); }
+        lbLastTap = 0;
+      }else{
+        lbLastTap = now;
+      }
+    }
+  };
+  stage.addEventListener("pointerup", end);
+  stage.addEventListener("pointercancel", end);
+  stage.addEventListener("wheel", e => {
+    e.preventDefault();
+    lbZoom(e.deltaY < 0 ? 1.15 : 1/1.15);
+  }, {passive:false});
+})();
+
+document.addEventListener("keydown", e => {
+  const lb = !document.getElementById("lightbox").hidden;
+  const md = !document.getElementById("productModal").hidden;
+  if(e.key === "Escape"){ if(lb) closeLightbox(); else if(md) closeProduct(); }
+  if(lb && e.key === "ArrowLeft") lbNav(-1);
+  if(lb && e.key === "ArrowRight") lbNav(1);
+});
 
 /* ---------- Logo ---------- */
 function setLogo(selector, url){
@@ -638,6 +1062,7 @@ loadProducts().then(() => {
   // drop cart items that no longer exist
   cart = cart.filter(i => findProduct(i.id));
   updateCart();
+  loadRatingStats();   // star ratings on the cards
 });
 </script>
 </body>
