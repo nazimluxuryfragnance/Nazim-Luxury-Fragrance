@@ -1,12 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Nazim Luxury Fragrances</title>
 <meta name="description" content="Discover premium attars and luxury fragrances at Nazim Luxury Fragrances.">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root{
   --gold:#c9a45c;
@@ -73,6 +72,7 @@ nav a:hover{color:#b28a42}
 .feature strong{display:block;font-size:13px;margin-bottom:7px}
 .feature span{font-size:11px;color:#777}
 .section{padding:65px 5%}
+.section[hidden]{display:none}
 .section-heading{text-align:center;margin-bottom:35px}
 .section-heading span{font-size:11px;color:#b28a42;letter-spacing:3px}
 .section-heading h2{font-size:27px;margin:10px 0}
@@ -80,6 +80,7 @@ nav a:hover{color:#b28a42}
 .products{
   display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px;
 }
+.empty-msg{grid-column:1/-1;text-align:center;color:#888;font-size:14px;padding:20px}
 .product{
   border:1px solid #eee;background:white;
   transition:.25s;position:relative;
@@ -98,6 +99,7 @@ nav a:hover{color:#b28a42}
 }
 .product-actions button:first-child{background:#111;color:white;border-color:#111}
 .product-actions button:hover{background:var(--gold);color:#111;border-color:var(--gold)}
+.product-actions button:disabled,.product-actions button:disabled:hover{opacity:.45;cursor:not-allowed;background:#eee;color:#777;border-color:#ccc}
 .tag{
   position:absolute;top:12px;left:12px;background:#111;
   color:white;padding:6px 9px;font-size:10px;letter-spacing:1px;
@@ -131,6 +133,7 @@ footer a{display:block}
 .cart-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:25px}
 .cart-head button{border:0;background:none;font-size:25px}
 .cart-item{display:flex;justify-content:space-between;gap:10px;padding:14px 0;border-bottom:1px solid #eee;font-size:13px}
+.cart-item button{border:0;background:none;color:#a33;font-size:12px}
 .cart-total{display:flex;justify-content:space-between;margin:22px 0;font-weight:bold}
 .checkout-btn{width:100%;padding:14px;background:#111;color:white;border:0}
 .overlay{display:none;position:fixed;inset:0;background:#0007;z-index:19}
@@ -162,16 +165,6 @@ footer a{display:block}
 }
 </style>
 </head>
-<script>
-const SUPABASE_URL = 'https://eknfimlojduysyhnsths.supabase.co';
-
-const SUPABASE_KEY = 'sb_publishable_o7UlzZz__4aylMzGQyzurA_kvFk57g6';
-
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
-</script>
 <body>
 
 <div class="topbar">WELCOME TO NAZIM LUXURY FRAGRANCES</div>
@@ -183,7 +176,7 @@ const supabaseClient = window.supabase.createClient(
   </a>
   <div class="header-actions">
     <a href="#products">Shop</a>
-    <button onclick="toggleCart()">Cart <span class="cart-count" id="cartCount">0</span></button>
+    <button type="button" onclick="toggleCart()">Cart <span class="cart-count" id="cartCount">0</span></button>
   </div>
 </header>
 
@@ -276,8 +269,8 @@ const supabaseClient = window.supabase.createClient(
     <div>
       <h3>CONTACT US</h3>
       <p>WhatsApp: 01881474813</p>
-      <a href="https://wa.me/8801881474813" target="_blank">WhatsApp Order</a>
-      <a href="https://www.facebook.com/share/1FcD6rvZbJ/" target="_blank">Facebook Page</a>
+      <a href="https://wa.me/8801881474813" target="_blank" rel="noopener">WhatsApp Order</a>
+      <a href="https://www.facebook.com/share/1FcD6rvZbJ/" target="_blank" rel="noopener">Facebook Page</a>
     </div>
   </div>
   <div class="copyright">© 2026 Nazim Luxury Fragrances. All Rights Reserved.</div>
@@ -287,18 +280,23 @@ const supabaseClient = window.supabase.createClient(
 <div class="cart-panel" id="cartPanel">
   <div class="cart-head">
     <h2>Your Cart</h2>
-    <button onclick="toggleCart()">×</button>
+    <button type="button" onclick="toggleCart()" aria-label="Close cart">×</button>
   </div>
   <div id="cartItems"></div>
   <div class="cart-total"><span>Total</span><span id="cartTotal">৳0</span></div>
-  <button class="checkout-btn" onclick="checkout()">ORDER ON WHATSAPP</button>
+  <button type="button" class="checkout-btn" onclick="checkout()">ORDER ON WHATSAPP</button>
 </div>
 
 <script>
+/* ---------- Settings ---------- */
 const WHATSAPP = "8801881474813";
+const SUPABASE_URL = "https://eknfimlojduysyhnsths.supabase.co";
+// Publishable (public) key only. NEVER put a service_role / secret key here.
+const SUPABASE_KEY = "sb_publishable_o7UlzZz__4aylMzGQyzurA_kvFk57g6";
+const PRODUCTS_TABLE = "Products"; // Supabase table name (case-sensitive)
 
-/* SAMPLE PRODUCTS: Replace names, prices and images with your real products. */
-const products = [
+/* Sample products: shown only if Supabase has no products or fails to load. */
+const SAMPLE_PRODUCTS = [
   {id:1,name:"Premium Oud",price:350,category:"new",image:"https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=80",description:"Elegant premium fragrance"},
   {id:2,name:"Royal Musk",price:300,category:"best",image:"https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=600&q=80",description:"A beautiful musk fragrance"},
   {id:3,name:"Luxury Attar",price:250,category:"new",image:"https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?auto=format&fit=crop&w=600&q=80",description:"A memorable luxury scent"},
@@ -309,83 +307,234 @@ const products = [
   {id:8,name:"Super Combo",price:950,category:"combo",image:"https://images.unsplash.com/photo-1590156221828-8d06c6b3f9d4?auto=format&fit=crop&w=600&q=80",description:"Explore multiple fragrances"}
 ];
 
+SAMPLE_PRODUCTS.forEach(p => { p.section = p.category; });
+
+const FALLBACK_IMG = "data:image/svg+xml;utf8," + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><rect width="100%" height="100%" fill="#f4f1eb"/><text x="50%" y="50%" fill="#b28a42" font-family="Arial" font-size="28" text-anchor="middle">NAZIM LUXURY</text></svg>'
+);
+
+let products = SAMPLE_PRODUCTS.slice();
 let cart = [];
 
+/* ---------- Helpers ---------- */
+function esc(v){
+  return String(v == null ? "" : v)
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;").replace(/'/g,"&#39;");
+}
+function sid(id){ return String(id); }
+
+/* ---------- Supabase ---------- */
+let supabaseClient = null;
+try{
+  if(window.supabase){
+    supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      global: {
+        // Some in-app previews cannot clone a Headers object; send plain headers instead.
+        fetch: (url, opts = {}) => {
+          if(opts.headers && typeof opts.headers.entries === "function" && !Array.isArray(opts.headers)){
+            opts = { ...opts, headers: Object.fromEntries(opts.headers.entries()) };
+          }
+          return fetch(url, opts);
+        }
+      }
+    });
+  }
+}catch(e){ console.warn("Supabase init failed:", e); }
+
+/* Shows a visible yellow notice at the top when products cannot be loaded. */
+function showNotice(msg){
+  let n = document.getElementById("dbNotice");
+  if(!n){
+    n = document.createElement("div");
+    n.id = "dbNotice";
+    n.style.cssText = "background:#fff3cd;color:#664d03;padding:12px 5%;font-size:13px;text-align:center;line-height:1.6";
+    document.body.insertBefore(n, document.querySelector(".hero"));
+  }
+  n.textContent = msg;
+}
+
+/* Reads a column ignoring upper/lower case (Name = name = NAME). */
+function pick(row, names){
+  const keys = Object.keys(row);
+  for(const n of names){
+    const k = keys.find(x => x.toLowerCase() === n);
+    if(k && row[k] != null && row[k] !== "") return row[k];
+  }
+  return "";
+}
+
+async function loadProducts(){
+  if(!supabaseClient){
+    showNotice("Supabase could not start (library blocked or no internet). Showing sample products.");
+    return;
+  }
+  try{
+    const { data, error } = await supabaseClient.from(PRODUCTS_TABLE).select("*").order("id");
+    if(error) throw error;
+    if(!Array.isArray(data) || !data.length){
+      showNotice("Supabase returned 0 products. Check the table name (Products), that it has rows, and that a SELECT policy exists (Row Level Security). Showing sample products.");
+    }
+    if(Array.isArray(data) && data.length){
+      // hide products where is_active = false
+      const rows = data.filter(r => {
+        const k = Object.keys(r).find(x => x.toLowerCase() === "is_active");
+        return !(k && r[k] === false);
+      });
+      products = rows.map(p => {
+        const category = String(pick(p, ["category","type"])).trim();
+        // optional "section" column: new / best / combo
+        let section = String(pick(p, ["section","collection","tag"])).trim().toLowerCase();
+        if(!section && category.toLowerCase().includes("combo")) section = "combo";
+        const stockRaw = pick(p, ["stock","quantity","qty"]);
+        return {
+          id: p.id,
+          name: String(pick(p, ["name","title"])),
+          price: Number(pick(p, ["price","amount"])) || 0,
+          category,
+          section,
+          image: String(pick(p, ["image url","image_url","image","imageurl","img","photo","picture"])),
+          description: String(pick(p, ["description","details","desc"])),
+          stock: stockRaw === "" ? null : Number(stockRaw)
+        };
+      });
+      // if no product is marked "new", treat the 4 newest as New Arrivals
+      if(!products.some(p => p.section === "new")){
+        products.slice().sort((a,b)=>Number(b.id)-Number(a.id)).slice(0,4)
+          .forEach(p => { if(!p.section) p.section = "new"; });
+      }
+    }
+  }catch(e){
+    console.warn("Could not load products from Supabase, using sample products:",
+      (e && (e.message || e.details || e.hint)) || JSON.stringify(e));
+    showNotice("Could not load products: " +
+      ((e && (e.message || e.details || e.hint)) || JSON.stringify(e)) +
+      " — showing sample products.");
+  }
+}
+
+/* ---------- Rendering ---------- */
 function productCard(p){
+  const id = esc(sid(p.id));
+  const soldOut = p.stock != null && p.stock <= 0;
   return `
   <div class="product">
-    ${p.category==="new"?'<span class="tag">NEW</span>':""}
-    <img src="${p.image}" alt="${p.name}" loading="lazy">
+    ${soldOut?'<span class="tag">SOLD OUT</span>':(p.section==="new"?'<span class="tag">NEW</span>':"")}
+    <img src="${esc(p.image||FALLBACK_IMG)}" alt="${esc(p.name)}" loading="lazy" onerror="this.onerror=null;this.src=FALLBACK_IMG">
     <div class="product-info">
-      <h3>${p.name}</h3>
-      <p>${p.description}</p>
-      <span class="price">৳${p.price}</span>
+      <h3>${esc(p.name)}</h3>
+      <p>${esc(p.description)}</p>
+      <span class="price">৳${esc(p.price)}</span>
       <div class="product-actions">
-        <button onclick="addToCart(${p.id})">ADD TO CART</button>
-        <button onclick="orderNow(${p.id})">ORDER NOW</button>
+        <button type="button" onclick="addToCart('${id}')" ${soldOut?"disabled":""}>ADD TO CART</button>
+        <button type="button" onclick="orderNow('${id}')" ${soldOut?"disabled":""}>ORDER NOW</button>
       </div>
     </div>
   </div>`;
 }
 
+function fillSection(containerId, list){
+  const el = document.getElementById(containerId);
+  el.innerHTML = list.length ? list.map(productCard).join("") : "";
+  const section = el.closest("section");
+  // hide empty category sections (not the main "All Products" one)
+  if(section && containerId !== "allProducts") section.hidden = list.length === 0;
+}
+
 function showProducts(){
-  document.getElementById("newProducts").innerHTML =
-    products.filter(p=>p.category==="new").map(productCard).join("");
-  document.getElementById("allProducts").innerHTML =
-    products.map(productCard).join("");
-  document.getElementById("bestProducts").innerHTML =
-    products.filter(p=>p.category==="best").map(productCard).join("");
-  document.getElementById("comboProducts").innerHTML =
-    products.filter(p=>p.category==="combo").map(productCard).join("");
+  fillSection("newProducts", products.filter(p=>p.section==="new"));
+  fillSection("allProducts", products);
+  fillSection("bestProducts", products.filter(p=>p.section==="best"));
+  fillSection("comboProducts", products.filter(p=>p.section==="combo"));
 }
+
 function searchProducts(){
-  const q=document.getElementById("searchInput").value.toLowerCase();
-  const found=products.filter(p=>p.name.toLowerCase().includes(q));
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  const found = products.filter(p =>
+    p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q)
+  );
   document.getElementById("allProducts").innerHTML =
-    found.length?found.map(productCard).join():"<p>No products found.</p>";
+    found.length ? found.map(productCard).join("") : '<p class="empty-msg">No products found.</p>';
 }
+
+/* ---------- Cart ---------- */
+function findProduct(id){ return products.find(x => sid(x.id) === sid(id)); }
+
+function saveCart(){
+  try{ localStorage.setItem("nazim_cart", JSON.stringify(cart)); }catch(e){}
+}
+function loadCart(){
+  try{
+    const saved = JSON.parse(localStorage.getItem("nazim_cart") || "[]");
+    if(Array.isArray(saved)) cart = saved.filter(i => i && i.name && i.qty > 0);
+  }catch(e){ cart = []; }
+}
+
 function addToCart(id){
-  const p=products.find(x=>x.id===id);
-  const existing=cart.find(x=>x.id===id);
+  const p = findProduct(id);
+  if(!p) return;
+  const existing = cart.find(x => sid(x.id) === sid(id));
   if(existing) existing.qty++;
-  else cart.push({...p,qty:1});
+  else cart.push({id:p.id,name:p.name,price:p.price,qty:1});
   updateCart();
 }
+
 function updateCart(){
-  document.getElementById("cartCount").textContent =
-    cart.reduce((s,p)=>s+p.qty,0);
-  document.getElementById("cartItems").innerHTML =
-    cart.length?cart.map(p=>`
+  document.getElementById("cartCount").textContent = cart.reduce((s,p)=>s+p.qty,0);
+  document.getElementById("cartItems").innerHTML = cart.length
+    ? cart.map(p=>`
       <div class="cart-item">
-        <div><strong>${p.name}</strong><br>৳${p.price} × ${p.qty}</div>
-        <button onclick="removeItem(${p.id})">Remove</button>
-      </div>`).join():"Your cart is empty.";
+        <div><strong>${esc(p.name)}</strong><br>৳${esc(p.price)} × ${esc(p.qty)}</div>
+        <button type="button" onclick="removeItem('${esc(sid(p.id))}')">Remove</button>
+      </div>`).join("")
+    : "Your cart is empty.";
   document.getElementById("cartTotal").textContent =
-    "৳"+cart.reduce((s,p)=>s+p.price*p.qty,0);
+    "৳" + cart.reduce((s,p)=>s+p.price*p.qty,0);
+  saveCart();
 }
+
 function removeItem(id){
-  cart=cart.filter(p=>p.id!==id);
+  cart = cart.filter(p => sid(p.id) !== sid(id));
   updateCart();
 }
+
 function toggleCart(){
   document.getElementById("cartPanel").classList.toggle("open");
   document.getElementById("overlay").classList.toggle("show");
 }
+
+/* ---------- WhatsApp orders ---------- */
+function openWhatsApp(msg){
+  window.open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg),"_blank","noopener");
+}
+
+const ORDER_FOOTER =
+  "\n\nName:\nPhone:\nFull address:\n\nPlease confirm the delivery charge. Thank you.";
+
 function orderNow(id){
-  const p=products.find(x=>x.id===id);
-  const msg=`Hello, I want to order:\n${p.name}\nPrice: ৳${p.price}`;
-  window.open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg),"_blank");
+  const p = findProduct(id);
+  if(!p) return;
+  openWhatsApp(`Hello Nazim Luxury Fragrances, I want to order:\n\n${p.name}\nPrice: ৳${p.price}\nQuantity: 1`+ORDER_FOOTER);
 }
+
 function checkout(){
-  if(!cart.length){alert("Your cart is empty!");return;}
-  const lines=cart.map(p=>`${p.name} - ৳${p.price} x ${p.qty}`);
-  const total=cart.reduce((s,p)=>s+p.price*p.qty,0);
-  const msg="Hello Nazim Luxury Fragrances, I want to order:\n\n"+
-    lines.join("\n")+"\n\nTotal: ৳"+total;
-  window.open("https://wa.me/"+WHATSAPP+"?text="+encodeURIComponent(msg),"_blank");
+  if(!cart.length){ alert("Your cart is empty!"); return; }
+  const lines = cart.map(p=>`${p.name} - ৳${p.price} x ${p.qty}`);
+  const total = cart.reduce((s,p)=>s+p.price*p.qty,0);
+  openWhatsApp("Hello Nazim Luxury Fragrances, I want to order:\n\n"+
+    lines.join("\n")+"\n\nTotal: ৳"+total+ORDER_FOOTER);
 }
-showProducts();
+
+/* ---------- Start ---------- */
+loadCart();
+showProducts();   // show sample products immediately
 updateCart();
+loadProducts().then(() => {
+  showProducts(); // re-render with Supabase products if they loaded
+  // drop cart items that no longer exist
+  cart = cart.filter(i => findProduct(i.id));
+  updateCart();
+});
 </script>
 </body>
 </html>
