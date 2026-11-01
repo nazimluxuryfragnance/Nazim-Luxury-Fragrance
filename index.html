@@ -202,6 +202,11 @@ body.lock{overflow:hidden}
 .star-input button.on{color:var(--gold)}
 .rf input,.rf textarea{width:100%;padding:11px;border:1px solid #ddd;border-radius:4px;font:inherit;font-size:14px;margin-top:10px;background:#fff}
 .rf textarea{min-height:80px;resize:vertical}
+.rf input[type=file]{padding:8px;background:#fff}
+.rf-preview{display:flex;align-items:center;gap:10px;margin-top:10px}
+.rf-preview img{width:70px;height:70px;object-fit:cover;border-radius:6px;border:1px solid #ddd}
+.rf-preview button{border:0;background:none;color:#a33;font-size:12px}
+.rv-photo{width:84px;height:84px;object-fit:cover;border-radius:6px;margin-top:8px;cursor:zoom-in;border:1px solid #eee;display:block}
 .rf .gold-btn{margin-top:12px;width:100%;cursor:pointer}
 .rf-msg{font-size:13px;margin-top:10px;color:#a33}
 .rf-msg.ok{color:#2a7a3b}
@@ -215,6 +220,15 @@ body.lock{overflow:hidden}
 .lb-tools{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:3}
 .lb-tools button{min-width:46px;height:42px;border:0;border-radius:22px;background:#fff3;color:#fff;font-size:18px;padding:0 14px}
 @media(min-width:700px){.modal{align-items:center}.modal-box{border-radius:12px}}
+.hero-wrap{position:relative;overflow:hidden;background:#111}
+.hero-slide{transition:opacity .9s ease}
+.hero-wrap.has-ads .hero-slide:not(.on){opacity:0;pointer-events:none}
+.hero-slide.ad{position:absolute;inset:0;background:#111}
+.hero-slide.ad img{width:100%;height:100%;object-fit:cover;display:block}
+.hero-dots{position:absolute;bottom:14px;left:0;right:0;text-align:center;z-index:4;pointer-events:none}
+.hero-dots button{width:9px;height:9px;margin:0 4px;padding:0;border:0;border-radius:50%;background:#fff8}
+.hero-dots button.on{background:var(--gold);width:22px;border-radius:6px}
+.features{border-top:1px solid #e8e3d8}
 @media(max-width:850px){
   .products{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
   .product img{height:190px}
@@ -269,7 +283,8 @@ body.lock{overflow:hidden}
   <a href="#combo">COMBO PACKAGE</a>
 </nav>
 
-<section class="hero">
+<div class="hero-wrap" id="heroWrap">
+<section class="hero hero-slide on">
   <div class="hero-content">
     <div class="eyebrow">THE ART OF LUXURY SCENT</div>
     <h1>Discover Your Signature Fragrance</h1>
@@ -277,11 +292,7 @@ body.lock{overflow:hidden}
     <a class="gold-btn" href="#products">EXPLORE COLLECTION</a>
   </div>
 </section>
-
-<div class="features">
-  <div class="feature"><strong>PREMIUM QUALITY</strong><span>Carefully selected fragrances</span></div>
-  <div class="feature"><strong>DELIVERY ALL OVER BANGLADESH</strong><span>Order from anywhere</span></div>
-  <div class="feature"><strong>WHATSAPP SUPPORT</strong><span>We are here to help</span></div>
+<div class="hero-dots" id="heroDots"></div>
 </div>
 
 <section class="section" id="new-arrivals">
@@ -331,6 +342,12 @@ body.lock{overflow:hidden}
   <h2>About Nazim Luxury Fragrances</h2>
   <p>Welcome to Nazim Luxury Fragrances. We bring you a collection of beautiful and premium fragrances. Our goal is to make every moment memorable with the perfect scent. Choose your favourite fragrance and order today.</p>
 </section>
+
+<div class="features">
+  <div class="feature"><strong>PREMIUM QUALITY</strong><span>Carefully selected fragrances</span></div>
+  <div class="feature"><strong>DELIVERY ALL OVER BANGLADESH</strong><span>Order from anywhere</span></div>
+  <div class="feature"><strong>WHATSAPP SUPPORT</strong><span>We are here to help</span></div>
+</div>
 
 <footer>
   <div class="footer-grid">
@@ -416,6 +433,8 @@ const FALLBACK_IMG = "data:image/svg+xml;utf8," + encodeURIComponent(
 
 let products = SAMPLE_PRODUCTS.slice();
 let cart = [];
+const AD_IMAGES = [];          // optional: ad image links (or set 'ad_images' in the Supabase settings table)
+let adTimer = null;
 let usingDb = false;          // true when products came from Supabase
 let ratingStats = {};         // { productId: {sum, count} }
 
@@ -452,7 +471,7 @@ function showNotice(msg){
     n = document.createElement("div");
     n.id = "dbNotice";
     n.style.cssText = "background:#fff3cd;color:#664d03;padding:12px 5%;font-size:13px;text-align:center;line-height:1.6";
-    document.body.insertBefore(n, document.querySelector(".hero"));
+    document.body.insertBefore(n, document.getElementById("heroWrap"));
   }
   n.textContent = msg;
 }
@@ -546,6 +565,10 @@ async function loadSettings(){
     const map = {};
     (data || []).forEach(r => { map[String(r.key).toLowerCase()] = r.value; });
     if(map.topbar_text) setTopbar(String(map.topbar_text));
+    if(map.ad_images){
+      const secs = Math.min(30, Math.max(2, Number(map.ad_seconds) || 5));
+      setupAds(String(map.ad_images).split(/[\n,]+/).map(x => x.trim()).filter(Boolean), secs);
+    }
   }catch(e){
     console.warn("Could not load settings:", (e && (e.message || e.details)) || e);
   }
@@ -804,6 +827,7 @@ function checkout(){
 
 /* ---------- Product details popup ---------- */
 const MODAL = {id:null, qty:1, img:0, rating:0};
+let REVIEW_IMGS = [];
 
 function openProduct(id){
   const p = findProduct(id);
@@ -880,7 +904,7 @@ async function loadReviews(p){
   }
   try{
     const { data, error } = await supabaseClient.from("reviews")
-      .select("name,rating,comment,created_at")
+      .select("*")
       .eq("product_id", p.id)
       .order("created_at", {ascending:false})
       .limit(50);
@@ -893,10 +917,12 @@ async function loadReviews(p){
     const avg = data.reduce((s,r)=>s+Number(r.rating||0),0) / data.length;
     document.getElementById("mRating").innerHTML =
       `${starsHtml(avg)} <span>${avg.toFixed(1)} (${data.length})</span>`;
-    box.innerHTML = data.map(r => `
+    REVIEW_IMGS = data.map(r => r.image_url || "");
+    box.innerHTML = data.map((r, idx) => `
       <div class="rv-item">
         ${starsHtml(Number(r.rating)||0)} <strong>${esc(r.name)}</strong><span class="rv-meta">${esc(fmtDate(r.created_at))}</span>
         ${r.comment ? `<p>${esc(r.comment)}</p>` : ""}
+        ${r.image_url ? `<img class="rv-photo" src="${esc(r.image_url)}" alt="Review photo" loading="lazy" onclick="openReviewPhoto(${idx})" onerror="this.remove()">` : ""}
       </div>`).join("");
   }catch(e){
     console.warn("Could not load reviews:", (e && (e.message || e.details)) || e);
@@ -923,9 +949,70 @@ function renderReviewForm(p){
       </div>
       <input id="rvName" maxlength="60" placeholder="Your name">
       <textarea id="rvComment" maxlength="500" placeholder="Share your experience with this fragrance..."></textarea>
+      <input type="file" id="rvPhoto" accept="image/*" onchange="previewPhoto(this)">
+      <div class="rf-preview" id="rvPreviewBox" hidden>
+        <img id="rvPreview" alt="Selected photo">
+        <button type="button" onclick="clearPhoto()">Remove photo</button>
+      </div>
       <button type="button" class="gold-btn" id="rvSubmit" onclick="submitReview()">SUBMIT REVIEW</button>
       <p class="rf-msg" id="rvMsg"></p>
     </div>`;
+}
+
+const REVIEW_BUCKET = "review-photos";
+
+function previewPhoto(input){
+  const f = input.files[0];
+  const box = document.getElementById("rvPreviewBox");
+  const msg = document.getElementById("rvMsg");
+  if(!f){ box.hidden = true; return; }
+  if(!f.type.startsWith("image/")){
+    input.value = ""; box.hidden = true;
+    msg.textContent = "Please choose an image file.";
+    return;
+  }
+  if(f.size > 15 * 1024 * 1024){
+    input.value = ""; box.hidden = true;
+    msg.textContent = "Photo is too large (max 15 MB).";
+    return;
+  }
+  msg.textContent = "";
+  document.getElementById("rvPreview").src = URL.createObjectURL(f);
+  box.hidden = false;
+}
+
+function clearPhoto(){
+  document.getElementById("rvPhoto").value = "";
+  document.getElementById("rvPreviewBox").hidden = true;
+}
+
+/* Shrinks a photo (max 1000px, JPEG) so uploads are small and fast. */
+function compressImage(file, max, quality){
+  max = max || 1000; quality = quality || 0.8;
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      const r = Math.min(1, max / Math.max(img.width, img.height));
+      const w = Math.round(img.width * r), h = Math.round(img.height * r);
+      const c = document.createElement("canvas");
+      c.width = w; c.height = h;
+      c.getContext("2d").drawImage(img, 0, 0, w, h);
+      c.toBlob(b => b ? resolve(b) : reject(new Error("compress failed")), "image/jpeg", quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("bad image")); };
+    img.src = url;
+  });
+}
+
+function openReviewPhoto(idx){
+  const u = REVIEW_IMGS[idx];
+  if(!u) return;
+  LB.imgs = [u]; LB.i = 0; LB.mode = "single";
+  document.getElementById("lightbox").hidden = false;
+  document.body.classList.add("lock");
+  lbShow();
 }
 
 function setStar(n){
@@ -944,10 +1031,23 @@ async function submitReview(){
   if(!supabaseClient || !usingDb){ msg.textContent = "Reviews are not available right now."; return; }
   btn.disabled = true;
   msg.textContent = "Submitting...";
+  let stage = "review";
   try{
-    const { error } = await supabaseClient.from("reviews").insert({
-      product_id: MODAL.id, name, rating: MODAL.rating, comment: comment || null
-    });
+    let imageUrl = null;
+    const file = document.getElementById("rvPhoto").files[0];
+    if(file){
+      stage = "photo";
+      msg.textContent = "Uploading photo...";
+      const blob = await compressImage(file);
+      const path = sid(MODAL.id) + "/" + Date.now() + "-" + Math.random().toString(36).slice(2, 10) + ".jpg";
+      const up = await supabaseClient.storage.from(REVIEW_BUCKET).upload(path, blob, {contentType:"image/jpeg", upsert:false});
+      if(up.error) throw up.error;
+      imageUrl = supabaseClient.storage.from(REVIEW_BUCKET).getPublicUrl(path).data.publicUrl;
+      stage = "review";
+    }
+    const row = { product_id: MODAL.id, name, rating: MODAL.rating, comment: comment || null };
+    if(imageUrl) row.image_url = imageUrl;
+    const { error } = await supabaseClient.from("reviews").insert(row);
     if(error) throw error;
     try{ localStorage.setItem(reviewedKey(MODAL.id), "1"); }catch(e){}
     document.getElementById("reviewFormWrap").innerHTML =
@@ -955,7 +1055,9 @@ async function submitReview(){
   }catch(e){
     console.warn("Review failed:", (e && (e.message || e.details)) || e);
     btn.disabled = false;
-    msg.textContent = "Could not submit your review. Please try again later.";
+    msg.textContent = stage === "photo"
+      ? "Could not upload the photo. Try a different photo or submit without it."
+      : "Could not submit your review. Please try again later.";
   }
 }
 
@@ -979,7 +1081,7 @@ async function loadRatingStats(){
 }
 
 /* ---------- Image zoom (lightbox) ---------- */
-const LB = {imgs:[], i:0, s:1, x:0, y:0};
+const LB = {imgs:[], i:0, s:1, x:0, y:0, mode:"product"};
 const lbPts = new Map();
 let lbLastDist = 0, lbLastTap = 0, lbMoved = false;
 
@@ -1010,6 +1112,7 @@ function openLightbox(i){
   if(!p) return;
   LB.imgs = productImages(p);
   LB.i = i || 0;
+  LB.mode = "product";
   document.getElementById("lightbox").hidden = false;
   document.body.classList.add("lock");
   lbShow();
@@ -1017,7 +1120,7 @@ function openLightbox(i){
 function closeLightbox(){
   document.getElementById("lightbox").hidden = true;
   if(document.getElementById("productModal").hidden) document.body.classList.remove("lock");
-  setModalImg(LB.i);
+  if(LB.mode === "product") setModalImg(LB.i);
 }
 
 (function(){
@@ -1076,6 +1179,62 @@ document.addEventListener("keydown", e => {
   if(lb && e.key === "ArrowRight") lbNav(1);
 });
 
+/* ---------- Ad slideshow in the hero ---------- */
+function loadImage(u){
+  return new Promise(res => {
+    const im = new Image();
+    im.onload = () => res(u);
+    im.onerror = () => res(null);
+    im.src = u;
+  });
+}
+
+async function setupAds(urls, seconds){
+  const wrap = document.getElementById("heroWrap");
+  const dots = document.getElementById("heroDots");
+  const first = wrap.querySelector(".hero-slide:not(.ad)");
+  clearInterval(adTimer);
+  wrap.querySelectorAll(".hero-slide.ad").forEach(e => e.remove());
+  dots.innerHTML = "";
+  wrap.classList.remove("has-ads");
+  first.classList.add("on");
+
+  const good = (await Promise.all((urls || []).map(loadImage))).filter(Boolean);
+  if(!good.length) return;
+
+  const slides = [first];
+  good.forEach(u => {
+    const d = document.createElement("div");
+    d.className = "hero-slide ad";
+    const img = document.createElement("img");
+    img.src = u;
+    img.alt = "Advertisement";
+    d.appendChild(img);
+    wrap.insertBefore(d, dots);
+    slides.push(d);
+  });
+  wrap.classList.add("has-ads");
+
+  let cur = 0;
+  const show = i => {
+    cur = i;
+    slides.forEach((s, k) => s.classList.toggle("on", k === i));
+    dots.querySelectorAll("button").forEach((b, k) => b.classList.toggle("on", k === i));
+  };
+  slides.forEach((_, i) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.setAttribute("aria-label", "Slide " + (i + 1));
+    dots.appendChild(b);
+  });
+  const restart = () => {
+    clearInterval(adTimer);
+    adTimer = setInterval(() => show((cur + 1) % slides.length), (seconds || 5) * 1000);
+  };
+  show(0);
+  restart();
+}
+
 /* ---------- Logo ---------- */
 function setLogo(selector, url){
   if(!url) return;
@@ -1090,6 +1249,7 @@ setLogo(".about-logo", LOGO_ABOUT_URL);
 
 /* ---------- Start ---------- */
 loadCart();
+if(AD_IMAGES.length) setupAds(AD_IMAGES, 5);
 loadSettings();
 showProducts();   // show sample products immediately
 updateCart();
