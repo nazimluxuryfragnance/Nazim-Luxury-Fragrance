@@ -193,6 +193,8 @@ body.lock{overflow:hidden}
 .m-thumbs{display:flex;gap:8px;margin-top:10px;overflow-x:auto}
 .m-thumbs img{width:62px;height:62px;object-fit:cover;border:2px solid transparent;border-radius:6px;cursor:pointer;flex:0 0 auto;background:#f4f1eb}
 .m-thumbs img.on{border-color:var(--gold)}
+.share-btn{display:block;width:100%;margin:0 0 20px;padding:11px;border:1px solid #b28a42;background:#fff;color:#7a5c1e;font-size:12px;font-weight:bold;letter-spacing:.5px;border-radius:2px}
+.share-btn:active{background:#f4f1eb}
 .m-name{font-size:22px;margin:14px 0 6px}
 .m-price{color:#a47b32;font-weight:bold;font-size:21px;margin:8px 0}
 .m-desc{color:#666;font-size:14px;line-height:1.7;margin-bottom:14px}
@@ -1047,10 +1049,12 @@ function openProduct(id){
       <button type="button" class="btn" onclick="addToCart('${pid}', MODAL.qty)" ${soldOut?"disabled":""}>${soldOut?"SOLD OUT":"ADD TO CART"}</button>
       <button type="button" class="btn alt" onclick="orderNow('${pid}', MODAL.qty)" ${soldOut?"disabled":""}>ORDER NOW</button>
     </div>
+    <button type="button" class="share-btn" onclick="shareProduct('${pid}')">&#128279; Share this product</button>
     <h3 class="rv-head">Customer Reviews</h3>
     <div id="reviewList"><p class="rv-empty">Loading reviews...</p></div>
     <div id="reviewFormWrap"></div>`;
   document.getElementById("productModal").hidden = false;
+  try{ history.replaceState(null, "", "#product-" + encodeURIComponent(productSlug(p))); }catch(e){}
   document.body.classList.add("lock");
   document.querySelector(".modal-box").scrollTop = 0;
   renderReviewForm(p);
@@ -1064,9 +1068,40 @@ function openProduct(id){
   }
 }
 
+function slugify(t){
+  return String(t || "").toLowerCase().trim().replace(/[^\p{L}\p{N}]+/gu, "-").replace(/^-+|-+$/g, "");
+}
+function productSlug(p){ return slugify(p.name) || sid(p.id); }
+function productLink(id){
+  const p = findProduct(id);
+  return location.origin + location.pathname + location.search + "#product-" + encodeURIComponent(p ? productSlug(p) : sid(id));
+}
+async function shareProduct(id){
+  const p = findProduct(id);
+  if(!p) return;
+  const url = productLink(p.id);
+  const data = {title: p.name + " - Nazim Luxury Fragrances", text: p.name + " - ৳" + unitPrice(p), url};
+  if(navigator.share){
+    try{ await navigator.share(data); return; }catch(e){ if(e && e.name === "AbortError") return; }
+  }
+  try{ await navigator.clipboard.writeText(url); toast("Product link copied"); return; }catch(e){}
+  prompt("Copy this product link:", url);
+}
+/* open the product named in the link (#product-ID) */
+function openFromHash(){
+  const h = location.hash;
+  if(h.indexOf("#product-") !== 0) return;
+  let id = "";
+  try{ id = decodeURIComponent(h.slice(9)); }catch(e){ return; }
+  const key = slugify(id);
+  const p = products.find(x => productSlug(x) === key) || findProduct(id);
+  if(p) openProduct(p.id);
+}
+window.addEventListener("hashchange", openFromHash);
 function closeProduct(){
   clearInterval(MODAL.timer);
   document.getElementById("productModal").hidden = true;
+  try{ if(location.hash.indexOf("#product-") === 0) history.replaceState(null, "", location.pathname + location.search); }catch(e){}
   if(document.getElementById("lightbox").hidden) document.body.classList.remove("lock");
 }
 
@@ -1584,6 +1619,7 @@ loadProducts().then(() => {
   });
   updateCart();
   loadRatingStats();   // star ratings on the cards
+  openFromHash();      // shared product link
 });
 </script>
 </body>
