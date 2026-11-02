@@ -633,10 +633,20 @@ async function loadProducts(){
         if(flag(pick(p, ["is_combo"])) && !sections.includes("combo")) sections.push("combo");
         const stockRaw = pick(p, ["stock","quantity","qty"]);
         const gRaw = String(pick(p, ["gender","for","sex","target"])).toLowerCase();
-        let gender = "";
-        if(/unisex|both|সবার/.test(gRaw)) gender = "unisex";
-        else if(/female|women|woman|ladies|lady|girl|নারী|মহিলা|মেয়ে/.test(gRaw)) gender = "female";
-        else if(/male|men|man|gents|boy|পুরুষ|ছেলে/.test(gRaw)) gender = "male";
+        // one product can be in more than one group, e.g. "male, female"
+        const genders = [];
+        let gLeft = gRaw;
+        if(/unisex|both|সবার/.test(gLeft)){
+          genders.push("unisex");
+          gLeft = gLeft.replace(/unisex|both|সবার/g, " ");
+        }
+        const femRe = /female|women|woman|ladies|lady|girl|নারী|মহিলা|মেয়ে/;
+        if(femRe.test(gLeft)){
+          genders.push("female");
+          gLeft = gLeft.replace(new RegExp(femRe.source, "g"), " ");   // so "female" is not read as "male"
+        }
+        if(/male|men|man|gents|boy|পুরুষ|ছেলে/.test(gLeft)) genders.push("male");
+        const gender = genders[0] || "";
         const offer = Number(pick(p, ["offer_price","offerprice","offer","sale_price","discount_price"])) || 0;
         return {
           id: p.id,
@@ -646,6 +656,7 @@ async function loadProducts(){
           sections,
           section: sections[0] || "",
           gender,
+          genders,
           offer,
           image: String(pick(p, ["image url","image_url","image","imageurl","img","photo","picture"])),
           images: buildImages(p),
@@ -827,9 +838,9 @@ function menuGo(key){
   closeMenu();
   document.getElementById("searchInput").value = "";
   if(key === "home"){ resetView(); replayAnimations(); return; }
-  if(key === "male") return showCollection("For Male", p => p.gender === "male");
-  if(key === "female") return showCollection("For Female", p => p.gender === "female");
-  if(key === "unisex") return showCollection("Unisex", p => p.gender === "unisex");
+  if(key === "male") return showCollection("For Male", p => (p.genders || []).includes("male"));
+  if(key === "female") return showCollection("For Female", p => (p.genders || []).includes("female"));
+  if(key === "unisex") return showCollection("Unisex", p => (p.genders || []).includes("unisex"));
   if(key === "offer") return showCollection("Offer Products", hasOffer);
   resetView();
   if(key === "all") return scrollToId("products");
