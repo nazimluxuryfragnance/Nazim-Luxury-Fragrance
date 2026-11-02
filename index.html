@@ -46,7 +46,9 @@ header{
   background:var(--gold);color:#111;border-radius:50%;
   padding:3px 7px;font-size:11px;margin-left:3px;
 }
-.search-wrap{background:#f1eee8;padding:13px 5%;display:flex;justify-content:center;position:sticky;top:0;z-index:15}
+.top-fixed{position:sticky;top:0;z-index:40}
+.search-wrap{background:#f1eee8;padding:13px 5%;display:flex;justify-content:center}
+html{scroll-padding-top:150px}
 .search-wrap input{
   width:100%;max-width:650px;padding:13px 16px;
   border:1px solid #ddd;border-radius:4px;font-size:14px;
@@ -349,6 +351,7 @@ header{animation:slideDown .7s ease backwards}
 
 <div class="topbar"><div class="topbar-track"><div class="topbar-group"><span>নাজিম লাক্সারি ফ্র্যাগরেন্স এ আপনাকে স্বাগতম। যেকোনো একটি কম্বো প্যাকেজ অর্ডার করলেই পাচ্ছেন মাত্র ৪৯৳ সারাদেশে হোম ডেলিভারি সুবিধা। ✦</span><span>নাজিম লাক্সারি ফ্র্যাগরেন্স এ আপনাকে স্বাগতম। যেকোনো একটি কম্বো প্যাকেজ অর্ডার করলেই পাচ্ছেন মাত্র ৪৯৳ সারাদেশে হোম ডেলিভারি সুবিধা। ✦</span><span>নাজিম লাক্সারি ফ্র্যাগরেন্স এ আপনাকে স্বাগতম। যেকোনো একটি কম্বো প্যাকেজ অর্ডার করলেই পাচ্ছেন মাত্র ৪৯৳ সারাদেশে হোম ডেলিভারি সুবিধা। ✦</span></div><div class="topbar-group" aria-hidden="true"><span>নাজিম লাক্সারি ফ্র্যাগরেন্স এ আপনাকে স্বাগতম। যেকোনো একটি কম্বো প্যাকেজ অর্ডার করলেই পাচ্ছেন মাত্র ৪৯৳ সারাদেশে হোম ডেলিভারি সুবিধা। ✦</span><span>নাজিম লাক্সারি ফ্র্যাগরেন্স এ আপনাকে স্বাগতম। যেকোনো একটি কম্বো প্যাকেজ অর্ডার করলেই পাচ্ছেন মাত্র ৪৯৳ সারাদেশে হোম ডেলিভারি সুবিধা। ✦</span><span>নাজিম লাক্সারি ফ্র্যাগরেন্স এ আপনাকে স্বাগতম। যেকোনো একটি কম্বো প্যাকেজ অর্ডার করলেই পাচ্ছেন মাত্র ৪৯৳ সারাদেশে হোম ডেলিভারি সুবিধা। ✦</span></div></div></div>
 
+<div class="top-fixed" id="topFixed">
 <header>
   <a href="#" class="logo">
     <img class="site-logo" alt="Nazim Luxury Fragrances logo" hidden>
@@ -360,6 +363,8 @@ header{animation:slideDown .7s ease backwards}
     <div class="menu-wrap">
       <button type="button" class="menu-btn" onclick="toggleMenu(event)" aria-label="Menu" aria-haspopup="true"><i></i><i></i><i></i></button>
       <div class="menu-list" id="menuList" hidden>
+        <button type="button" onclick="menuGo('home')">Home</button>
+        <hr>
         <button type="button" onclick="menuGo('male')">For Male</button>
         <button type="button" onclick="menuGo('female')">For Female</button>
         <button type="button" onclick="menuGo('unisex')">Unisex</button>
@@ -376,6 +381,7 @@ header{animation:slideDown .7s ease backwards}
 
 <div class="search-wrap">
   <input id="searchInput" type="search" placeholder="Search your favourite fragrance..." oninput="searchProducts()">
+</div>
 </div>
 
 <div class="hero-wrap" id="heroWrap">
@@ -811,12 +817,14 @@ function showCollection(title, test){
   document.getElementById("allProducts").innerHTML = list.length
     ? list.map(productCard).join("")
     : '<p class="empty-msg">No products in this category yet.</p>';
+  observeCards();
   scrollToId("products");
 }
 
 function menuGo(key){
   closeMenu();
   document.getElementById("searchInput").value = "";
+  if(key === "home"){ resetView(); window.scrollTo({top:0, behavior:"smooth"}); return; }
   if(key === "male") return showCollection("For Male", p => p.gender === "male");
   if(key === "female") return showCollection("For Female", p => p.gender === "female");
   if(key === "unisex") return showCollection("Unisex", p => p.gender === "unisex");
@@ -863,6 +871,7 @@ function searchProducts(){
   const found = products.filter(p => p.name.toLowerCase().includes(q.toLowerCase()));
   document.getElementById("allProducts").innerHTML =
     found.length ? found.map(productCard).join("") : '<p class="empty-msg">Not found</p>';
+  observeCards();
 
   if(!searchScrolled){
     searchScrolled = true;
