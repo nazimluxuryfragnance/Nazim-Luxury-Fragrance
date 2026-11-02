@@ -32,7 +32,7 @@ button{cursor:pointer;font:inherit}
 header{
   background:#101010;color:white;padding:17px 5%;
   display:flex;align-items:center;justify-content:space-between;
-  gap:15px;flex-wrap:wrap;
+  gap:12px;flex-wrap:nowrap;
 }
 .logo{display:flex;align-items:center;gap:12px;font-size:21px;font-weight:bold;color:var(--gold);letter-spacing:1px}
 .site-logo{height:46px;width:auto;display:block}
@@ -237,9 +237,11 @@ body.lock{overflow:hidden}
 .features{border-top:1px solid #e8e3d8}
 .offer-tag{background:#d11}
 .m-price .price{font-size:inherit}
+.logo{min-width:0}
+.header-actions{flex-shrink:0}
 .menu-wrap{position:relative}
-.header-actions .menu-btn{width:40px;height:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:1px solid #ffffff40;border-radius:50%}
-.menu-btn i{display:block;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.header-actions .menu-btn{width:40px;height:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:1px solid #ffffff40;border-radius:8px}
+.menu-btn i{display:block;width:20px;height:3px;border-radius:2px;background:var(--gold)}
 .menu-list{position:absolute;right:0;top:calc(100% + 10px);width:220px;background:#fff;border-radius:8px;box-shadow:0 8px 28px #0006;padding:6px 0;z-index:25}
 .menu-list[hidden]{display:none}
 .header-actions .menu-list button{display:block;width:100%;text-align:left;padding:12px 18px;font-size:14px;color:#222;background:none;border:0}
@@ -255,9 +257,12 @@ body.lock{overflow:hidden}
   .footer-grid{grid-template-columns:1fr 1fr}
 }
 @media(max-width:480px){
-  header{padding:15px 4%}
-  .logo{font-size:17px}
-  .header-actions{gap:12px}
+  header{padding:12px 3.5%;gap:8px}
+  .logo{font-size:15px;gap:8px;letter-spacing:.5px}
+  .site-logo{height:36px}
+  .logo small{font-size:8px;letter-spacing:3px;margin-top:4px}
+  .header-actions{gap:6px}
+  .header-actions .menu-btn{width:36px;height:36px}
   nav{gap:17px;padding:14px 8px}
   nav a{font-size:10px}
   .hero{min-height:350px;padding:35px 6%}
@@ -306,13 +311,6 @@ body.lock{overflow:hidden}
 <div class="search-wrap">
   <input id="searchInput" type="search" placeholder="Search your favourite fragrance..." oninput="searchProducts()">
 </div>
-
-<nav>
-  <a href="#new-arrivals">NEW ARRIVALS</a>
-  <a href="#products">ALL PRODUCTS</a>
-  <a href="#best-selling">BEST SELLING</a>
-  <a href="#combo">COMBO PACKAGE</a>
-</nav>
 
 <div class="hero-wrap" id="heroWrap">
 <section class="hero hero-slide on">
