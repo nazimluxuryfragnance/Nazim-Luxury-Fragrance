@@ -88,7 +88,7 @@ nav a:hover{color:#b28a42}
 #products .section-heading h2{background:var(--gold);color:#111}
 #best-selling .section-heading h2{background:#8e1b3a;color:#fff}
 #combo .section-heading h2{background:#5b2a86;color:#fff}
-.section-heading span{font-size:11px;color:#b28a42;letter-spacing:3px}
+.section-heading span{display:block;font-size:11px;color:#b28a42;letter-spacing:3px}
 .section-heading h2{display:inline-block;background:var(--gold);color:#111;font-size:18px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;padding:13px 32px;margin:12px 0;border-radius:2px}
 .section-heading p{font-size:13px;color:#777}
 .products{
@@ -106,7 +106,7 @@ nav a:hover{color:#b28a42}
 .size{display:inline-block;background:#f4f1eb;color:#7a5c1e;border:1px solid #e6d9bd;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:bold;margin-bottom:8px}
 .product-info p{font-size:12px;color:#888;margin-bottom:12px}
 .price{color:#a47b32;font-weight:bold;font-size:16px}
-.old-price{font-size:12px;color:#999;text-decoration:line-through;margin-left:7px}
+.old-price{font-size:14px;color:#777;text-decoration:line-through;text-decoration-color:#d11;text-decoration-thickness:2px;margin-right:9px}
 .product-actions{display:flex;gap:8px;margin-top:15px}
 .product-actions button{
   flex:1;padding:10px 5px;font-size:11px;
@@ -235,6 +235,18 @@ body.lock{overflow:hidden}
 .hero-dots button{width:9px;height:9px;margin:0 4px;padding:0;border:0;border-radius:50%;background:#fff8}
 .hero-dots button.on{background:var(--gold);width:22px;border-radius:6px}
 .features{border-top:1px solid #e8e3d8}
+.offer-tag{background:#d11}
+.m-price .price{font-size:inherit}
+.menu-wrap{position:relative}
+.header-actions .menu-btn{width:40px;height:40px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:1px solid #ffffff40;border-radius:50%}
+.menu-btn i{display:block;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.menu-list{position:absolute;right:0;top:calc(100% + 10px);width:220px;background:#fff;border-radius:8px;box-shadow:0 8px 28px #0006;padding:6px 0;z-index:25}
+.menu-list[hidden]{display:none}
+.header-actions .menu-list button{display:block;width:100%;text-align:left;padding:12px 18px;font-size:14px;color:#222;background:none;border:0}
+.header-actions .menu-list button:hover{background:#f4f1eb}
+.menu-list hr{border:0;border-top:1px solid #eee;margin:4px 0}
+.cart-sum{margin-top:18px;border-top:1px solid #eee;padding-top:10px}
+.cart-sum div{display:flex;justify-content:space-between;font-size:13px;color:#555;padding:4px 0}
 @media(max-width:850px){
   .products{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
   .product img{height:190px}
@@ -273,8 +285,21 @@ body.lock{overflow:hidden}
     <small>FRAGRANCES</small></span>
   </a>
   <div class="header-actions">
-    <a href="#products">Shop</a>
     <button type="button" onclick="toggleCart()">Cart <span class="cart-count" id="cartCount">0</span></button>
+    <div class="menu-wrap">
+      <button type="button" class="menu-btn" onclick="toggleMenu(event)" aria-label="Menu" aria-haspopup="true"><i></i><i></i><i></i></button>
+      <div class="menu-list" id="menuList" hidden>
+        <button type="button" onclick="menuGo('male')">For Male</button>
+        <button type="button" onclick="menuGo('female')">For Female</button>
+        <button type="button" onclick="menuGo('unisex')">Unisex</button>
+        <hr>
+        <button type="button" onclick="menuGo('all')">All Products</button>
+        <button type="button" onclick="menuGo('best')">Best Selling</button>
+        <button type="button" onclick="menuGo('combo')">Combo</button>
+        <button type="button" onclick="menuGo('new')">New Arrivals</button>
+        <button type="button" onclick="menuGo('offer')">Offer Product</button>
+      </div>
+    </div>
   </div>
 </header>
 
@@ -379,6 +404,10 @@ body.lock{overflow:hidden}
     <button type="button" onclick="toggleCart()" aria-label="Close cart">×</button>
   </div>
   <div id="cartItems"></div>
+  <div class="cart-sum">
+    <div><span>Subtotal</span><span id="cartSub">৳0</span></div>
+    <div><span id="cartDelLabel">Delivery charge</span><span id="cartDel">৳0</span></div>
+  </div>
   <div class="cart-total"><span>Total</span><span id="cartTotal">৳0</span></div>
   <button type="button" class="checkout-btn" onclick="checkout()">ORDER ON WHATSAPP</button>
 </div>
@@ -405,6 +434,8 @@ body.lock{overflow:hidden}
 <script>
 /* ---------- Settings ---------- */
 const WHATSAPP = "8801881474813";
+const DELIVERY_CHARGE = 120;   // normal delivery charge (৳)
+const COMBO_DELIVERY = 49;     // delivery charge when the order has a combo package (৳)
 const SUPABASE_URL = "https://eknfimlojduysyhnsths.supabase.co";
 // Publishable (public) key only. NEVER put a service_role / secret key here.
 const SUPABASE_KEY = "sb_publishable_o7UlzZz__4aylMzGQyzurA_kvFk57g6";
@@ -529,6 +560,12 @@ async function loadProducts(){
         if(flag(pick(p, ["is_new","new_arrival","is_new_arrival"])) && !sections.includes("new")) sections.push("new");
         if(flag(pick(p, ["is_combo"])) && !sections.includes("combo")) sections.push("combo");
         const stockRaw = pick(p, ["stock","quantity","qty"]);
+        const gRaw = String(pick(p, ["gender","for","sex","target"])).toLowerCase();
+        let gender = "";
+        if(/unisex|both|সবার/.test(gRaw)) gender = "unisex";
+        else if(/female|women|woman|ladies|lady|girl|নারী|মহিলা|মেয়ে/.test(gRaw)) gender = "female";
+        else if(/male|men|man|gents|boy|পুরুষ|ছেলে/.test(gRaw)) gender = "male";
+        const offer = Number(pick(p, ["offer_price","offerprice","offer","sale_price","discount_price"])) || 0;
         return {
           id: p.id,
           name: String(pick(p, ["name","title"])),
@@ -536,6 +573,8 @@ async function loadProducts(){
           category,
           sections,
           section: sections[0] || "",
+          gender,
+          offer,
           image: String(pick(p, ["image url","image_url","image","imageurl","img","photo","picture"])),
           images: buildImages(p),
           size: String(pick(p, ["size","volume","ml"])).trim(),
@@ -614,6 +653,14 @@ document.addEventListener("scroll", e => {
   el.parentElement.querySelectorAll(".dots i").forEach((d, k) => d.classList.toggle("on", k === i));
 }, true);
 
+function hasOffer(p){ return p.offer > 0 && p.offer < p.price; }
+function unitPrice(p){ return hasOffer(p) ? p.offer : p.price; }
+function priceHtml(p){
+  return hasOffer(p)
+    ? `<s class="old-price">৳${esc(p.price)}</s><span class="price">৳${esc(p.offer)}</span>`
+    : `<span class="price">৳${esc(p.price)}</span>`;
+}
+
 function starsHtml(avg){
   const full = Math.max(0, Math.min(5, Math.round(avg)));
   return '<span class="stars">' + "★".repeat(full) + '<span class="off">' + "★".repeat(5 - full) + "</span></span>";
@@ -631,14 +678,14 @@ function productCard(p){
   const soldOut = p.stock != null && p.stock <= 0;
   return `
   <div class="product">
-    ${soldOut?'<span class="tag">SOLD OUT</span>':(p.sections.includes("new")?'<span class="tag">NEW</span>':"")}
+    ${soldOut?'<span class="tag">SOLD OUT</span>':(hasOffer(p)?'<span class="tag offer-tag">OFFER</span>':(p.sections.includes("new")?'<span class="tag">NEW</span>':""))}
     <div class="img-click" onclick="openProduct('${id}')">${imageBlock(p)}</div>
     <div class="product-info">
       <h3 class="pname" onclick="openProduct('${id}')">${highlight(p.name, currentQuery)}</h3>
       ${p.size?`<span class="size">${esc(p.size)}</span>`:""}
       <div class="rating-line" onclick="openProduct('${id}')">${ratingLine(p)}</div>
       <p>${esc(p.description)}</p>
-      <span class="price">৳${esc(p.price)}</span>
+      ${priceHtml(p)}
       <div class="product-actions">
         <button type="button" onclick="addToCart('${id}')" ${soldOut?"disabled":""}>ADD TO CART</button>
         <button type="button" onclick="orderNow('${id}')" ${soldOut?"disabled":""}>ORDER NOW</button>
@@ -660,6 +707,61 @@ function showProducts(){
   fillSection("allProducts", products.filter(p => !p.sections.includes("combo")));
   fillSection("bestProducts", products.filter(p => p.sections.includes("best")));
   fillSection("comboProducts", products.filter(p => p.sections.includes("combo")));
+}
+
+/* ---------- Menu (three dots) and collections ---------- */
+function toggleMenu(e){
+  if(e) e.stopPropagation();
+  const m = document.getElementById("menuList");
+  m.hidden = !m.hidden;
+}
+function closeMenu(){ document.getElementById("menuList").hidden = true; }
+document.addEventListener("click", e => { if(!e.target.closest(".menu-wrap")) closeMenu(); });
+document.addEventListener("keydown", e => { if(e.key === "Escape") closeMenu(); });
+
+function resetView(){
+  currentQuery = "";
+  searchScrolled = false;
+  document.body.classList.remove("searching");
+  const head = document.querySelector("#products .section-heading");
+  head.querySelector("h2").textContent = "All Products";
+  head.querySelector("p").textContent = "Find your favourite fragrance";
+  showProducts();
+}
+
+function scrollToId(id){
+  const el = document.getElementById(id);
+  if(el && !el.hidden) el.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+function showCollection(title, test){
+  document.getElementById("searchInput").value = "";
+  currentQuery = "";
+  searchScrolled = true;
+  document.body.classList.add("searching");
+  const head = document.querySelector("#products .section-heading");
+  head.querySelector("h2").textContent = title;
+  head.querySelector("p").textContent = "";
+  const list = products.filter(test);
+  document.getElementById("allProducts").innerHTML = list.length
+    ? list.map(productCard).join("")
+    : '<p class="empty-msg">No products in this category yet.</p>';
+  scrollToId("products");
+}
+
+function menuGo(key){
+  closeMenu();
+  document.getElementById("searchInput").value = "";
+  if(key === "male") return showCollection("For Male", p => p.gender === "male");
+  if(key === "female") return showCollection("For Female", p => p.gender === "female");
+  if(key === "unisex") return showCollection("Unisex", p => p.gender === "unisex");
+  if(key === "offer") return showCollection("Offer Products", hasOffer);
+  resetView();
+  if(key === "all") return scrollToId("products");
+  const target = {best:"best-selling", combo:"combo", new:"new-arrivals"}[key];
+  const el = document.getElementById(target);
+  if(el.hidden) toast("No products in this section yet");
+  else scrollToId(target);
 }
 
 let searchScrolled = false;
@@ -685,16 +787,7 @@ function searchProducts(){
   const q = document.getElementById("searchInput").value.trim();
   const head = document.querySelector("#products .section-heading");
 
-  // search box is empty: back to the normal page
-  if(!q){
-    currentQuery = "";
-    searchScrolled = false;
-    document.body.classList.remove("searching");
-    head.querySelector("h2").textContent = "All Products";
-    head.querySelector("p").textContent = "Find your favourite fragrance";
-    showProducts();
-    return;
-  }
+  if(!q){ resetView(); return; }
 
   currentQuery = q;
   document.body.classList.add("searching");
@@ -723,6 +816,13 @@ function loadCart(){
     const saved = JSON.parse(localStorage.getItem("nazim_cart") || "[]");
     if(Array.isArray(saved)) cart = saved.filter(i => i && i.name && i.qty > 0);
   }catch(e){ cart = []; }
+}
+
+function cartTotals(){
+  const sub = cart.reduce((s,p)=>s+p.price*p.qty,0);
+  const combo = cart.some(p=>p.combo);
+  const delivery = cart.length ? (combo ? COMBO_DELIVERY : DELIVERY_CHARGE) : 0;
+  return {sub, delivery, combo, total: sub + delivery};
 }
 
 function maxQty(p){
@@ -756,7 +856,7 @@ function addToCart(id, qty){
     if(qty <= 0) return;
   }
   if(existing) existing.qty += qty;
-  else cart.push({id:p.id,name:p.name,size:p.size||"",price:p.price,qty});
+  else cart.push({id:p.id,name:p.name,size:p.size||"",price:unitPrice(p),combo:p.sections.includes("combo"),qty});
   updateCart();
   toast("Added to cart ✓");
 }
@@ -795,8 +895,11 @@ function updateCart(){
       </div>`;
       }).join("")
     : "Your cart is empty.";
-  document.getElementById("cartTotal").textContent =
-    "৳" + cart.reduce((s,p)=>s+p.price*p.qty,0);
+  const t = cartTotals();
+  document.getElementById("cartSub").textContent = "৳" + t.sub;
+  document.getElementById("cartDel").textContent = "৳" + t.delivery;
+  document.getElementById("cartDelLabel").textContent = t.combo ? "Delivery charge (combo offer)" : "Delivery charge";
+  document.getElementById("cartTotal").textContent = "৳" + t.total;
   saveCart();
 }
 
@@ -816,7 +919,7 @@ function openWhatsApp(msg){
 }
 
 const ORDER_FOOTER =
-  "\n\nName:\nPhone:\nFull address:\n\nPlease confirm the delivery charge. Thank you.";
+  "\n\nName:\nPhone:\nFull address:\n\nThank you.";
 
 function orderNow(id, qty){
   qty = Math.max(1, parseInt(qty, 10) || 1);
@@ -824,15 +927,18 @@ function orderNow(id, qty){
   if(!p) return;
   const max = maxQty(p);
   if(qty > max){ toast("Only " + max + " available in stock"); return; }
-  openWhatsApp(`Hello Nazim Luxury Fragrances, I want to order:\n\n${p.name}${p.size?"\nSize: "+p.size:""}\nPrice: ৳${p.price}\nQuantity: ${qty}\nTotal: ৳${p.price*qty}`+ORDER_FOOTER);
+  const unit = unitPrice(p);
+  const sub = unit * qty;
+  const del = p.sections.includes("combo") ? COMBO_DELIVERY : DELIVERY_CHARGE;
+  openWhatsApp(`Hello Nazim Luxury Fragrances, I want to order:\n\n${p.name}${p.size?"\nSize: "+p.size:""}\nPrice: ৳${unit}\nQuantity: ${qty}\nSubtotal: ৳${sub}\nDelivery charge: ৳${del}\nTotal: ৳${sub+del}`+ORDER_FOOTER);
 }
 
 function checkout(){
   if(!cart.length){ alert("Your cart is empty!"); return; }
   const lines = cart.map(p=>`${p.name}${p.size?" ("+p.size+")":""} - ৳${p.price} x ${p.qty}`);
-  const total = cart.reduce((s,p)=>s+p.price*p.qty,0);
+  const t = cartTotals();
   openWhatsApp("Hello Nazim Luxury Fragrances, I want to order:\n\n"+
-    lines.join("\n")+"\n\nTotal: ৳"+total+ORDER_FOOTER);
+    lines.join("\n")+"\n\nSubtotal: ৳"+t.sub+"\nDelivery charge: ৳"+t.delivery+"\nTotal: ৳"+t.total+ORDER_FOOTER);
 }
 
 /* ---------- Product details popup ---------- */
@@ -855,7 +961,7 @@ function openProduct(id){
     <h2 class="m-name">${esc(p.name)}</h2>
     ${p.size ? `<span class="size">${esc(p.size)}</span>` : ""}
     <div class="rating-line" id="mRating" style="cursor:default">${ratingLine(p)}</div>
-    <div class="m-price">৳${esc(p.price)}</div>
+    <div class="m-price">${priceHtml(p)}</div>
     <p class="m-desc">${esc(p.description)}</p>
     <div class="m-buy">
       <div class="qty">
@@ -1267,6 +1373,10 @@ loadProducts().then(() => {
   showProducts(); // re-render with Supabase products if they loaded
   // drop cart items that no longer exist
   cart = cart.filter(i => findProduct(i.id));
+  cart.forEach(i => {
+    const p = findProduct(i.id);
+    i.price = unitPrice(p); i.size = p.size || ""; i.combo = p.sections.includes("combo");
+  });
   updateCart();
   loadRatingStats();   // star ratings on the cards
 });
