@@ -294,9 +294,6 @@ header{animation:slideDown .7s ease backwards}
 .slides{transition:opacity .25s ease}
 .js-anim .reveal{opacity:0;transform:translateY(30px);transition:opacity .8s ease var(--d,0s),transform .8s ease var(--d,0s)}
 .js-anim .reveal.in{opacity:1;transform:none}
-.js-anim .products:not(.in) .product{opacity:0}
-.js-anim .products.in .product{animation:cardIn .7s ease backwards;animation-delay:calc(var(--i,0)*90ms)}
-.js-anim .products.in.done .product{animation:none}
 @media(max-width:850px){
   .products{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
   .product img{height:190px}
@@ -325,9 +322,26 @@ header{animation:slideDown .7s ease backwards}
   .feature span{font-size:9px}
   .footer-grid{grid-template-columns:1fr}
 }
+
+/* ---- sold out = red ---- */
+.tag.soldout{background:#d11;color:#fff}
+.m-buy .btn:disabled{background:#d11;color:#fff;border-color:#d11;opacity:.85}
+/* ---- hero banner: slides in from right to left ---- */
+.hero-wrap.has-ads .hero-slide:not(.on):not(.out){opacity:1;transform:translateX(100%);transition:none;pointer-events:none}
+.hero-wrap.has-ads .hero-slide.on{opacity:1;transform:translateX(0);transition:transform .9s cubic-bezier(.65,0,.35,1)}
+.hero-wrap.has-ads .hero-slide.out{opacity:1;transform:translateX(-100%);transition:transform .9s cubic-bezier(.65,0,.35,1);pointer-events:none}
+.hero-slide.ad.on img{animation:none}
+/* ---- text rises up while scrolling ---- */
+.js-anim .product:not(.in){opacity:0;transform:translateY(40px)}
+.js-anim .product.in{opacity:1;transform:none;transition:opacity .7s ease,transform .7s ease,box-shadow .25s}
+.js-anim .product:not(.in) .product-info>*{opacity:0;transform:translateY(24px)}
+.js-anim .product.in .product-info>*{opacity:1;transform:none;transition:opacity .7s ease,transform .7s ease;transition-delay:calc(.15s + var(--k,0)*.09s)}
+.js-anim .product.in:hover{transform:translateY(-4px);transition-delay:0s}
+.js-anim .rise:not(.in){opacity:0;transform:translateY(30px)}
+.js-anim .rise.in{opacity:1;transform:none;transition:opacity .8s ease var(--d,0s),transform .8s ease var(--d,0s)}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
-  .js-anim .reveal,.js-anim .products:not(.in) .product{opacity:1!important;transform:none!important}
+  .js-anim .reveal,.js-anim .product,.js-anim .product .product-info>*,.js-anim .rise{opacity:1!important;transform:none!important}
 }
 </style>
 </head>
@@ -728,13 +742,12 @@ function productCard(p, i){
   const soldOut = p.stock != null && p.stock <= 0;
   return `
   <div class="product" data-pid="${id}" style="--i:${(i||0)%4}">
-    ${soldOut?'<span class="tag">SOLD OUT</span>':(hasOffer(p)?'<span class="tag offer-tag">OFFER</span>':(p.sections.includes("new")?'<span class="tag">NEW</span>':""))}
+    ${soldOut?'<span class="tag soldout">SOLD OUT</span>':(hasOffer(p)?'<span class="tag offer-tag">OFFER</span>':(p.sections.includes("new")?'<span class="tag">NEW</span>':""))}
     <div class="img-click" onclick="openProduct('${id}')">${imageBlock(p)}</div>
     <div class="product-info">
       <h3 class="pname" onclick="openProduct('${id}')">${highlight(p.name, currentQuery)}</h3>
       ${p.size?`<span class="size">${esc(p.size)}</span>`:""}
       <div class="rating-line" onclick="openProduct('${id}')">${ratingLine(p)}</div>
-      <p>${esc(p.description)}</p>
       ${priceHtml(p)}
       <div class="product-actions">
         <button type="button" onclick="addToCart('${id}')" ${soldOut?"disabled":""}>ADD TO CART</button>
@@ -748,6 +761,7 @@ function fillSection(containerId, list){
   const el = document.getElementById(containerId);
   if(el.classList.contains("in")) el.classList.add("done");   // no replay of the entrance animation
   el.innerHTML = list.length ? list.map(productCard).join("") : "";
+  observeCards();
   const section = el.closest("section");
   // hide empty category sections (not the main "All Products" one)
   if(section && containerId !== "allProducts") section.hidden = list.length === 0;
@@ -1400,8 +1414,12 @@ async function setupAds(urls, seconds){
 
   let cur = 0;
   const show = i => {
+    const prev = cur;
     cur = i;
-    slides.forEach((s, k) => s.classList.toggle("on", k === i));
+    slides.forEach((s, k) => {
+      s.classList.toggle("on", k === i);
+      s.classList.toggle("out", k === prev && k !== i);
+    });
     dots.querySelectorAll("button").forEach((b, k) => b.classList.toggle("on", k === i));
   };
   slides.forEach((_, i) => {
@@ -1472,7 +1490,7 @@ function setupReveal(){
       revealIO.unobserve(el);
     });
   }, {threshold: 0.05, rootMargin: "0px 0px -5% 0px"});
-  document.querySelectorAll(".section-heading, .about, .feature, .footer-grid > div, .copyright").forEach((el, i) => {
+  document.querySelectorAll(".section-heading, .about, .feature, .footer-grid > div, .copyright, .banner h2, .banner p").forEach((el, i) => {
     el.classList.add("reveal");
     if(el.classList.contains("feature") || el.parentElement.classList.contains("footer-grid")){
       el.style.setProperty("--d", ((i % 3) * 0.12) + "s");
@@ -1481,6 +1499,24 @@ function setupReveal(){
   });
   // safety: never leave anything hidden
   setTimeout(() => document.querySelectorAll(".reveal:not(.in), .products:not(.in)").forEach(el => el.classList.add("in")), 7000);
+}
+let cardIO = null;
+function observeCards(){
+  const cards = document.querySelectorAll(".product:not(.in)");
+  if(!("IntersectionObserver" in window)){ cards.forEach(c => c.classList.add("in")); return; }
+  if(!cardIO) cardIO = new IntersectionObserver(es => es.forEach(en => {
+    if(!en.isIntersecting) return;
+    en.target.classList.add("in");
+    cardIO.unobserve(en.target);
+  }), {threshold: 0.08, rootMargin: "0px 0px -6% 0px"});
+  cards.forEach(c => {
+    c.querySelectorAll(".product-info>*").forEach((e, k) => e.style.setProperty("--k", k));
+    cardIO.observe(c);
+  });
+  setTimeout(() => document.querySelectorAll(".product:not(.in)").forEach(c => {
+    const r = c.getBoundingClientRect();
+    if(r.top < innerHeight) c.classList.add("in");
+  }), 1500);
 }
 function observeProducts(){          // called once the real products are on the page
   if(productsObserved) return;
