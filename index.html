@@ -6,6 +6,7 @@
 <title>Nazim Luxury Fragrances</title>
 <meta name="description" content="Discover premium attars and luxury fragrances at Nazim Luxury Fragrances.">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>if("IntersectionObserver" in window)document.documentElement.classList.add("js-anim")</script>
 <style>
 :root{
   --gold:#c9a45c;
@@ -57,12 +58,12 @@ nav{
 nav a{font-size:12px;font-weight:bold;letter-spacing:1px}
 nav a:hover{color:#b28a42}
 .hero{
-  min-height:430px;background:
-  linear-gradient(90deg,rgba(0,0,0,.83),rgba(0,0,0,.15)),
-  url('https://eknfimlojduysyhnsths.supabase.co/storage/v1/object/public/Products%20images/file_0000000010ac8207bd75b5316535ec6e.png')
-  center/cover;
+  position:relative;overflow:hidden;
+  min-height:430px;background:#111;
   display:flex;align-items:center;padding:60px 8%;color:white;
 }
+.hero::before{content:"";position:absolute;inset:0;background:url('https://eknfimlojduysyhnsths.supabase.co/storage/v1/object/public/Products%20images/file_0000000010ac8207bd75b5316535ec6e.png') center/cover;transform-origin:60% 50%;animation:kenburns 16s ease-in-out infinite alternate}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.83),rgba(0,0,0,.15))}
 .hero-content{max-width:520px}
 .hero .eyebrow{color:var(--gold);letter-spacing:4px;font-size:12px}
 .hero h1{font-size:48px;line-height:1.15;margin:20px 0}
@@ -250,6 +251,52 @@ body.lock{overflow:hidden}
 .menu-list hr{border:0;border-top:1px solid #eee;margin:4px 0}
 .cart-sum{margin-top:18px;border-top:1px solid #eee;padding-top:10px}
 .cart-sum div{display:flex;justify-content:space-between;font-size:13px;color:#555;padding:4px 0}
+/* ---------- Animations ---------- */
+html{scroll-behavior:smooth}
+@keyframes pageIn{from{opacity:0}to{opacity:1}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-24px)}to{opacity:1;transform:none}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+@keyframes kenburns{from{transform:scale(1)}to{transform:scale(1.14)}}
+@keyframes adIn{from{opacity:.35;transform:scale(1.07)}to{opacity:1;transform:scale(1)}}
+@keyframes glow{0%{box-shadow:0 0 0 0 rgba(201,164,92,.6)}70%,100%{box-shadow:0 0 0 16px rgba(201,164,92,0)}}
+@keyframes shine{0%,55%{left:-60%}100%{left:130%}}
+@keyframes cardIn{from{opacity:0;transform:translateY(34px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes menuIn{from{opacity:0;transform:translateY(-8px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes modalUp{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes bump{0%{transform:scale(1)}40%{transform:scale(1.7)}100%{transform:scale(1)}}
+@keyframes imgIn{from{opacity:.25;transform:scale(1.05)}to{opacity:1;transform:none}}
+body{animation:pageIn .6s ease backwards}
+header{animation:slideDown .7s ease backwards}
+.hero-content{position:relative;z-index:1}
+.hero-slide.on .eyebrow{animation:fadeUp .8s .15s ease backwards}
+.hero-slide.on h1{animation:fadeUp .8s .3s ease backwards}
+.hero-slide.on p{animation:fadeUp .8s .45s ease backwards}
+.hero-slide.on .gold-btn{animation:fadeUp .8s .6s ease backwards,glow 2.6s 1.6s ease-out infinite}
+.hero-slide{transition:opacity .9s ease,transform 1.2s ease}
+.hero-wrap.has-ads .hero-slide:not(.on){transform:scale(1.04)}
+.hero-slide.ad.on img{animation:adIn 1.4s ease backwards}
+.section-heading h2{position:relative;overflow:hidden}
+.section-heading h2::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);animation:shine 5s ease-in-out infinite}
+.gold-btn{transition:transform .25s,background .25s,box-shadow .25s}
+.gold-btn:hover{transform:translateY(-3px);box-shadow:0 8px 20px #c9a45c55}
+.img-click{overflow:hidden}
+.img-click img{transition:transform .7s ease}
+.product:hover .img-click img{transform:scale(1.07)}
+.product-actions button{transition:background .2s,transform .15s}
+.product-actions button:active{transform:scale(.95)}
+.cart-count.bump{animation:bump .5s ease}
+.menu-list:not([hidden]){animation:menuIn .22s ease}
+.modal:not([hidden]){animation:fadeIn .25s ease}
+.modal:not([hidden]) .modal-box{animation:modalUp .35s ease}
+.lightbox:not([hidden]){animation:fadeIn .25s ease}
+.m-main img.swap{animation:imgIn .55s ease}
+.slides{transition:opacity .25s ease}
+.js-anim .reveal{opacity:0;transform:translateY(30px);transition:opacity .8s ease var(--d,0s),transform .8s ease var(--d,0s)}
+.js-anim .reveal.in{opacity:1;transform:none}
+.js-anim .products:not(.in) .product{opacity:0}
+.js-anim .products.in .product{animation:cardIn .7s ease backwards;animation-delay:calc(var(--i,0)*90ms)}
+.js-anim .products.in.done .product{animation:none}
 @media(max-width:850px){
   .products{grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
   .product img{height:190px}
@@ -277,6 +324,10 @@ body.lock{overflow:hidden}
   .feature strong{font-size:11px}
   .feature span{font-size:9px}
   .footer-grid{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .js-anim .reveal,.js-anim .products:not(.in) .product{opacity:1!important;transform:none!important}
 }
 </style>
 </head>
@@ -672,11 +723,11 @@ function ratingLine(p){
     : `<span class="stars"><span class="off">★★★★★</span></span> <span>No reviews yet</span>`;
 }
 
-function productCard(p){
+function productCard(p, i){
   const id = esc(sid(p.id));
   const soldOut = p.stock != null && p.stock <= 0;
   return `
-  <div class="product">
+  <div class="product" data-pid="${id}" style="--i:${(i||0)%4}">
     ${soldOut?'<span class="tag">SOLD OUT</span>':(hasOffer(p)?'<span class="tag offer-tag">OFFER</span>':(p.sections.includes("new")?'<span class="tag">NEW</span>':""))}
     <div class="img-click" onclick="openProduct('${id}')">${imageBlock(p)}</div>
     <div class="product-info">
@@ -695,6 +746,7 @@ function productCard(p){
 
 function fillSection(containerId, list){
   const el = document.getElementById(containerId);
+  if(el.classList.contains("in")) el.classList.add("done");   // no replay of the entrance animation
   el.innerHTML = list.length ? list.map(productCard).join("") : "";
   const section = el.closest("section");
   // hide empty category sections (not the main "All Products" one)
@@ -857,6 +909,7 @@ function addToCart(id, qty){
   if(existing) existing.qty += qty;
   else cart.push({id:p.id,name:p.name,size:p.size||"",price:unitPrice(p),combo:p.sections.includes("combo"),qty});
   updateCart();
+  bumpCart();
   toast("Added to cart ✓");
 }
 
@@ -941,7 +994,7 @@ function checkout(){
 }
 
 /* ---------- Product details popup ---------- */
-const MODAL = {id:null, qty:1, img:0, rating:0};
+const MODAL = {id:null, qty:1, img:0, rating:0, timer:null};
 let REVIEW_IMGS = [];
 
 function openProduct(id){
@@ -956,7 +1009,7 @@ function openProduct(id){
       <img id="mMainImg" src="${esc(imgs[0])}" alt="${esc(p.name)}" onerror="this.onerror=null;this.src=FALLBACK_IMG">
       <span class="m-hint">Tap to zoom</span>
     </div>
-    ${imgs.length > 1 ? `<div class="m-thumbs">${imgs.map((u,i)=>`<img src="${esc(u)}" alt="" class="${i===0?"on":""}" onclick="setModalImg(${i})" onerror="this.onerror=null;this.src=FALLBACK_IMG">`).join("")}</div>` : ""}
+    ${imgs.length > 1 ? `<div class="m-thumbs">${imgs.map((u,i)=>`<img src="${esc(u)}" alt="" class="${i===0?"on":""}" onclick="setModalImg(${i}, true)" onerror="this.onerror=null;this.src=FALLBACK_IMG">`).join("")}</div>` : ""}
     <h2 class="m-name">${esc(p.name)}</h2>
     ${p.size ? `<span class="size">${esc(p.size)}</span>` : ""}
     <div class="rating-line" id="mRating" style="cursor:default">${ratingLine(p)}</div>
@@ -979,19 +1032,30 @@ function openProduct(id){
   document.querySelector(".modal-box").scrollTop = 0;
   renderReviewForm(p);
   loadReviews(p);
+  clearInterval(MODAL.timer);
+  if(imgs.length > 1 && !REDUCED){
+    MODAL.timer = setInterval(() => {
+      if(!document.getElementById("lightbox").hidden) return;
+      setModalImg((MODAL.img + 1) % imgs.length);
+    }, 3200);
+  }
 }
 
 function closeProduct(){
+  clearInterval(MODAL.timer);
   document.getElementById("productModal").hidden = true;
   if(document.getElementById("lightbox").hidden) document.body.classList.remove("lock");
 }
 
-function setModalImg(i){
+function setModalImg(i, manual){
   const p = findProduct(MODAL.id);
   if(!p) return;
+  if(manual) clearInterval(MODAL.timer);
   const imgs = productImages(p);
   MODAL.img = i;
-  document.getElementById("mMainImg").src = imgs[i];
+  const main = document.getElementById("mMainImg");
+  main.src = imgs[i];
+  main.classList.remove("swap"); void main.offsetWidth; main.classList.add("swap");
   document.querySelectorAll(".m-thumbs img").forEach((t,k) => t.classList.toggle("on", k === i));
 }
 
@@ -1189,7 +1253,10 @@ async function loadRatingStats(){
       stats[k].count++;
     });
     ratingStats = stats;
-    showProducts();
+    document.querySelectorAll(".product[data-pid] .rating-line").forEach(el => {
+      const p = findProduct(el.closest(".product").dataset.pid);
+      if(p) el.innerHTML = ratingLine(p);
+    });
   }catch(e){
     console.warn("Could not load ratings:", (e && (e.message || e.details)) || e);
   }
@@ -1351,6 +1418,78 @@ async function setupAds(urls, seconds){
   restart();
 }
 
+/* ---------- Animations ---------- */
+const REDUCED = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+function bumpCart(){
+  const c = document.getElementById("cartCount");
+  c.classList.remove("bump"); void c.offsetWidth; c.classList.add("bump");
+}
+
+/* product cards: the pictures change by themselves */
+function slideNext(el){
+  const n = el.children.length;
+  if(n < 2) return;
+  const w = el.clientWidth;
+  const cur = Math.round(el.scrollLeft / w);
+  if(cur >= n - 1){
+    el.style.opacity = ".15";
+    setTimeout(() => { el.scrollTo({left: 0, behavior: "auto"}); el.style.opacity = "1"; }, 260);
+  }else{
+    el.scrollTo({left: (cur + 1) * w, behavior: "smooth"});
+  }
+}
+if(!REDUCED){
+  setInterval(() => {
+    if(document.hidden) return;
+    const now = Date.now();
+    let k = 0;
+    document.querySelectorAll(".slides").forEach(el => {
+      if(Number(el.dataset.pause) > now) return;           // person is touching / hovering it
+      const r = el.getBoundingClientRect();
+      if(!r.width || r.bottom < 0 || r.top > window.innerHeight) return;
+      setTimeout(() => slideNext(el), (k++ % 6) * 280);     // cards change one after another
+    });
+  }, 3200);
+  const pauseSlider = e => {
+    const sl = e.target.closest && e.target.closest(".slider");
+    if(sl) sl.querySelector(".slides").dataset.pause = Date.now() + (e.type === "mouseover" ? 4000 : 9000);
+  };
+  ["pointerdown","touchstart","mouseover"].forEach(ev =>
+    document.addEventListener(ev, pauseSlider, {capture:true, passive:true}));
+}
+
+/* things fade in while scrolling */
+let revealIO = null, productsObserved = false;
+function setupReveal(){
+  if(!("IntersectionObserver" in window)) return;
+  revealIO = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if(!en.isIntersecting) return;
+      const el = en.target;
+      el.classList.add("in");
+      if(el.classList.contains("products")) setTimeout(() => el.classList.add("done"), 1800);
+      revealIO.unobserve(el);
+    });
+  }, {threshold: 0.05, rootMargin: "0px 0px -5% 0px"});
+  document.querySelectorAll(".section-heading, .about, .feature, .footer-grid > div, .copyright").forEach((el, i) => {
+    el.classList.add("reveal");
+    if(el.classList.contains("feature") || el.parentElement.classList.contains("footer-grid")){
+      el.style.setProperty("--d", ((i % 3) * 0.12) + "s");
+    }
+    revealIO.observe(el);
+  });
+  // safety: never leave anything hidden
+  setTimeout(() => document.querySelectorAll(".reveal:not(.in), .products:not(.in)").forEach(el => el.classList.add("in")), 7000);
+}
+function observeProducts(){          // called once the real products are on the page
+  if(productsObserved) return;
+  productsObserved = true;
+  document.querySelectorAll(".products").forEach(el => {
+    if(revealIO) revealIO.observe(el); else el.classList.add("in");
+  });
+}
+
 /* ---------- Logo ---------- */
 function setLogo(selector, url){
   if(!url) return;
@@ -1364,6 +1503,8 @@ setLogo(".site-logo", LOGO_HEADER_URL);
 setLogo(".about-logo", LOGO_ABOUT_URL);
 
 /* ---------- Start ---------- */
+setupReveal();
+setTimeout(observeProducts, 4000);
 loadCart();
 if(AD_IMAGES.length) setupAds(AD_IMAGES, 5);
 loadSettings();
@@ -1371,6 +1512,7 @@ showProducts();   // show sample products immediately
 updateCart();
 loadProducts().then(() => {
   showProducts(); // re-render with Supabase products if they loaded
+  observeProducts();
   // drop cart items that no longer exist
   cart = cart.filter(i => findProduct(i.id));
   cart.forEach(i => {
