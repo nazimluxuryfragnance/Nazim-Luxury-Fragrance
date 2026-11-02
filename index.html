@@ -824,7 +824,7 @@ function showCollection(title, test){
 function menuGo(key){
   closeMenu();
   document.getElementById("searchInput").value = "";
-  if(key === "home"){ resetView(); window.scrollTo({top:0, behavior:"smooth"}); return; }
+  if(key === "home"){ resetView(); replayAnimations(); return; }
   if(key === "male") return showCollection("For Male", p => p.gender === "male");
   if(key === "female") return showCollection("For Female", p => p.gender === "female");
   if(key === "unisex") return showCollection("Unisex", p => p.gender === "unisex");
@@ -1443,7 +1443,9 @@ async function setupAds(urls, seconds){
   };
   show(0);
   restart();
+  heroGoFirst = () => { show(0); restart(); };
 }
+let heroGoFirst = null;
 
 /* ---------- Animations ---------- */
 const REDUCED = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
@@ -1533,6 +1535,22 @@ function observeProducts(){          // called once the real products are on the
   document.querySelectorAll(".products").forEach(el => {
     if(revealIO) revealIO.observe(el); else el.classList.add("in");
   });
+}
+
+/* Home button: play every entrance animation again */
+function replayAnimations(){
+  window.scrollTo({top:0, behavior:"auto"});
+  // hero: first slide + its text animation
+  const first = document.querySelector("#heroWrap .hero-slide:not(.ad)");
+  if(heroGoFirst) heroGoFirst();
+  if(first){ first.classList.remove("on"); void first.offsetWidth; first.classList.add("on"); }
+  // everything that rises while scrolling
+  document.querySelectorAll(".reveal.in").forEach(el => el.classList.remove("in"));
+  document.querySelectorAll(".product.in").forEach(el => el.classList.remove("in"));
+  void document.body.offsetWidth;
+  if(revealIO) document.querySelectorAll(".reveal:not(.in)").forEach(el => revealIO.observe(el));
+  else document.querySelectorAll(".reveal").forEach(el => el.classList.add("in"));
+  observeCards();
 }
 
 /* ---------- Logo ---------- */
