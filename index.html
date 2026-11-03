@@ -347,6 +347,31 @@ header{animation:slideDown .7s ease backwards}
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
   .js-anim .reveal,.js-anim .product,.js-anim .product .product-info>*,.js-anim .rise{opacity:1!important;transform:none!important}
 }
+
+/* ---- 1. search = icon only, input opens on tap ---- */
+.search-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border-radius:50%}
+.search-btn svg{width:21px;height:21px;stroke:var(--gold);fill:none;stroke-width:2.3;stroke-linecap:round}
+.search-wrap{display:none}
+.search-wrap.open{display:flex}
+html{scroll-padding-top:90px}
+html:has(.search-wrap.open){scroll-padding-top:150px}
+
+/* ---- 2. footer: Quick Links left, brand centre, Contact Us right ---- */
+.footer-grid{grid-template-columns:1fr 1.4fr 1fr;gap:18px;align-items:start}
+.footer-grid>div:nth-child(1){text-align:left}
+.footer-grid>div:nth-child(2){text-align:center}
+.footer-grid>div:nth-child(3){text-align:right}
+footer a,footer p{overflow-wrap:anywhere}
+@media(max-width:480px){
+  footer{padding:35px 4% 18px}
+  .footer-grid{grid-template-columns:1fr 1.3fr 1fr;gap:8px}
+  footer h3{font-size:10.5px;margin-bottom:10px}
+  footer p,footer a{font-size:10.5px;line-height:1.9}
+}
+
+/* ---- 4. ORDER NOW button colour (green) ---- */
+.product-actions button:nth-child(2):not(:disabled),.m-buy .btn.alt:not(:disabled){background:#1f7a5c;color:#fff;border-color:#1f7a5c;font-weight:bold}
+.product-actions button:nth-child(2):not(:disabled):hover,.m-buy .btn.alt:not(:disabled):hover{background:#17614a;color:#fff;border-color:#17614a}
 </style>
 </head>
 <body>
@@ -361,6 +386,7 @@ header{animation:slideDown .7s ease backwards}
     <small>FRAGRANCES</small></span>
   </a>
   <div class="header-actions">
+    <button type="button" class="search-btn" id="searchBtn" onclick="toggleSearch()" aria-label="Search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></button>
     <button type="button" onclick="toggleCart()">Cart <span class="cart-count" id="cartCount">0</span></button>
     <div class="menu-wrap">
       <button type="button" class="menu-btn" onclick="toggleMenu(event)" aria-label="Menu" aria-haspopup="true"><i></i><i></i><i></i></button>
@@ -381,8 +407,8 @@ header{animation:slideDown .7s ease backwards}
   </div>
 </header>
 
-<div class="search-wrap">
-  <input id="searchInput" type="search" placeholder="Search your favourite fragrance..." oninput="searchProducts()">
+<div class="search-wrap" id="searchWrap">
+  <input id="searchInput" type="search" placeholder="Search your favourite fragrance..." oninput="searchProducts()" onblur="searchBlur()">
 </div>
 </div>
 
@@ -449,15 +475,15 @@ header{animation:slideDown .7s ease backwards}
 <footer>
   <div class="footer-grid">
     <div>
-      <h3>NAZIM LUXURY FRAGRANCES</h3>
-      <p>Discover premium fragrances and make every moment unforgettable.</p>
-    </div>
-    <div>
       <h3>QUICK LINKS</h3>
       <a href="#new-arrivals">New Arrivals</a>
       <a href="#products">All Products</a>
       <a href="#best-selling">Best Selling</a>
       <a href="#combo">Combo Package</a>
+    </div>
+    <div>
+      <h3>NAZIM LUXURY FRAGRANCES</h3>
+      <p>Discover premium fragrances and make every moment unforgettable.</p>
     </div>
     <div>
       <h3>CONTACT US</h3>
@@ -823,6 +849,7 @@ function showCollection(title, test){
   currentQuery = "";
   searchScrolled = true;
   document.body.classList.add("searching");
+  pushView();
   const head = document.querySelector("#products .section-heading");
   head.querySelector("h2").textContent = title;
   head.querySelector("p").textContent = "";
@@ -853,6 +880,20 @@ function menuGo(key){
 let searchScrolled = false;
 let currentQuery = "";
 
+/* search icon: tap to open the box, closes again when empty */
+function toggleSearch(){
+  const w = document.getElementById("searchWrap"), i = document.getElementById("searchInput");
+  if(w.classList.contains("open") && !i.value.trim()){ w.classList.remove("open"); return; }
+  w.classList.add("open");
+  i.focus();
+}
+function searchBlur(){
+  setTimeout(() => {
+    const i = document.getElementById("searchInput");
+    if(document.activeElement !== i && !i.value.trim()) document.getElementById("searchWrap").classList.remove("open");
+  }, 200);
+}
+
 /* Wraps the matching part of a name in <mark> (case-insensitive), everything escaped. */
 function highlight(text, q){
   text = String(text == null ? "" : text);
@@ -877,6 +918,7 @@ function searchProducts(){
 
   currentQuery = q;
   document.body.classList.add("searching");
+  pushView();
   head.querySelector("h2").textContent = "Search Results";
   head.querySelector("p").textContent = "";
 
@@ -996,9 +1038,24 @@ function removeItem(id){
   updateCart();
 }
 
+function openCartNow(){
+  document.getElementById("cartPanel").classList.add("open");
+  document.getElementById("overlay").classList.add("show");
+}
+function closeCartNow(){
+  document.getElementById("cartPanel").classList.remove("open");
+  document.getElementById("overlay").classList.remove("show");
+}
 function toggleCart(){
-  document.getElementById("cartPanel").classList.toggle("open");
-  document.getElementById("overlay").classList.toggle("show");
+  const open = document.getElementById("cartPanel").classList.contains("open");
+  if(!open){
+    openCartNow();
+    try{ history.pushState({ov:"cart"}, ""); }catch(e){}
+  }else if(history.state && history.state.ov === "cart"){
+    history.back();
+  }else{
+    closeCartNow();
+  }
 }
 
 /* ---------- WhatsApp orders ---------- */
@@ -1064,8 +1121,13 @@ function openProduct(id){
     <h3 class="rv-head">Customer Reviews</h3>
     <div id="reviewList"><p class="rv-empty">Loading reviews...</p></div>
     <div id="reviewFormWrap"></div>`;
+  const modalWasHidden = document.getElementById("productModal").hidden;
   document.getElementById("productModal").hidden = false;
-  try{ history.replaceState(null, "", "#product-" + encodeURIComponent(productSlug(p))); }catch(e){}
+  try{
+    const u = "#product-" + encodeURIComponent(productSlug(p));
+    if(modalWasHidden) history.pushState({ov:"product"}, "", u);
+    else history.replaceState({ov:"product"}, "", u);
+  }catch(e){}
   document.body.classList.add("lock");
   document.querySelector(".modal-box").scrollTop = 0;
   renderReviewForm(p);
@@ -1100,6 +1162,7 @@ async function shareProduct(id){
 }
 /* open the product named in the link (#product-ID) */
 function openFromHash(){
+  if(typeof lastPop !== "undefined" && Date.now() - lastPop < 600) return;
   const h = location.hash;
   if(h.indexOf("#product-") !== 0) return;
   let id = "";
@@ -1110,6 +1173,10 @@ function openFromHash(){
 }
 window.addEventListener("hashchange", openFromHash);
 function closeProduct(){
+  if(history.state && history.state.ov === "product") history.back();
+  else closeProductNow();
+}
+function closeProductNow(){
   clearInterval(MODAL.timer);
   document.getElementById("productModal").hidden = true;
   try{ if(location.hash.indexOf("#product-") === 0) history.replaceState(null, "", location.pathname + location.search); }catch(e){}
@@ -1258,7 +1325,7 @@ function openReviewPhoto(idx){
   const u = REVIEW_IMGS[idx];
   if(!u) return;
   LB.imgs = [u]; LB.i = 0; LB.mode = "single";
-  document.getElementById("lightbox").hidden = false;
+  showLB();
   document.body.classList.add("lock");
   lbShow();
 }
@@ -1364,11 +1431,21 @@ function openLightbox(i){
   LB.imgs = productImages(p);
   LB.i = i || 0;
   LB.mode = "product";
-  document.getElementById("lightbox").hidden = false;
+  showLB();
   document.body.classList.add("lock");
   lbShow();
 }
+function showLB(){
+  const lb = document.getElementById("lightbox");
+  const was = lb.hidden;
+  lb.hidden = false;
+  if(was){ try{ history.pushState({ov:"lightbox"}, ""); }catch(e){} }
+}
 function closeLightbox(){
+  if(history.state && history.state.ov === "lightbox") history.back();
+  else closeLightboxNow();
+}
+function closeLightboxNow(){
   document.getElementById("lightbox").hidden = true;
   if(document.getElementById("productModal").hidden) document.body.classList.remove("lock");
   if(LB.mode === "product") setModalImg(LB.i);
@@ -1421,6 +1498,31 @@ function closeLightbox(){
     lbZoom(e.deltaY < 0 ? 1.15 : 1/1.15);
   }, {passive:false});
 })();
+
+/* ---------- phone Back button: close the open layer instead of leaving the site ---------- */
+let lastPop = 0, viewPushed = false;
+function pushView(){
+  if(viewPushed) return;
+  viewPushed = true;
+  try{ history.pushState({ov:"view"}, ""); }catch(e){}
+}
+window.addEventListener("popstate", () => {
+  lastPop = Date.now();
+  if(!document.getElementById("lightbox").hidden){ closeLightboxNow(); return; }
+  if(!document.getElementById("productModal").hidden){ closeProductNow(); return; }
+  if(document.getElementById("cartPanel").classList.contains("open")){ closeCartNow(); return; }
+  if(viewPushed){
+    viewPushed = false;
+    if(document.body.classList.contains("searching")){
+      document.getElementById("searchInput").value = "";
+      document.getElementById("searchWrap").classList.remove("open");
+      resetView();
+      window.scrollTo({top:0});
+    }else{
+      history.back();   // already on the home view: let Back leave the page
+    }
+  }
+});
 
 document.addEventListener("keydown", e => {
   const lb = !document.getElementById("lightbox").hidden;
