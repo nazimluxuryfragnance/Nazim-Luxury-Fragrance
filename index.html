@@ -547,7 +547,11 @@ const BIG_ORDER_QTY = 5;       // more than this many items (pouch/bottle not co
 function discountRate(qty){ return qty > 10 ? 0.10 : qty > 5 ? 0.07 : qty >= 1 ? 0.05 : 0; }
 /* "Perfume Bottle & Pouch" category */
 function isPouch(p){
-  return /bottle|pouch|বোতল|পাউচ/i.test(String(p && p.category || "")) || /pouch|perfume bottle/i.test(String(p && p.name || ""));
+  if(!p) return false;
+  if(p.isPouch === true) return true;               // explicit true/false column (is_pouch) from the database
+  // look at category, name and tag/section text; NFC makes Bengali letters compare reliably
+  const txt = [p.category, p.name, p.tags].map(v => String(v || "").normalize("NFC")).join(" ");
+  return /bottle|bottel|botol|pouch|pauch|pouche|বোতল|বটল|বোতোল|পাউচ|পাউট|পাউছ|পাউচ্|পাউজ/i.test(txt);
 }
 /* one place that works out discount + delivery for a list of {price, qty, combo, pouch} */
 function calcOrder(items){
@@ -686,6 +690,7 @@ async function loadProducts(){
         if(flag(pick(p, ["is_best","best_selling","bestselling","bestseller","is_best_selling","best"])) && !sections.includes("best")) sections.push("best");
         if(flag(pick(p, ["is_new","new_arrival","is_new_arrival"])) && !sections.includes("new")) sections.push("new");
         if(flag(pick(p, ["is_combo"])) && !sections.includes("combo")) sections.push("combo");
+        const pouchFlag = flag(pick(p, ["is_pouch","pouch","is_bottle","is_bottle_pouch"]));
         const stockRaw = pick(p, ["stock","quantity","qty"]);
         const gRaw = String(pick(p, ["gender","for","sex","target"])).toLowerCase();
         // one product can be in more than one group, e.g. "male, female"
@@ -708,6 +713,8 @@ async function loadProducts(){
           name: String(pick(p, ["name","title"])),
           price: Number(pick(p, ["price","amount"])) || 0,
           category,
+          tags: secRaw,
+          isPouch: pouchFlag,
           sections,
           section: sections[0] || "",
           gender,
@@ -843,7 +850,7 @@ function fillSection(containerId, list){
 
 function showProducts(){
   fillSection("newProducts", products.filter(p => p.sections.includes("new")));
-  fillSection("allProducts", products.filter(p => !p.sections.includes("combo")));
+  fillSection("allProducts", products.filter(p => !p.sections.includes("combo") && !isPouch(p)));   // bottle & pouch only in its own menu page
   fillSection("bestProducts", products.filter(p => p.sections.includes("best")));
   fillSection("comboProducts", products.filter(p => p.sections.includes("combo")));
 }
