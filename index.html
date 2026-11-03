@@ -356,18 +356,26 @@ header{animation:slideDown .7s ease backwards}
 html{scroll-padding-top:90px}
 html:has(.search-wrap.open){scroll-padding-top:150px}
 
-/* ---- 2. footer: Quick Links left, brand centre, Contact Us right ---- */
-.footer-grid{grid-template-columns:1fr 1.4fr 1fr;gap:18px;align-items:start}
+/* ---- 2. footer: Quick Links left, Contact Us right, bigger text ---- */
+.footer-grid{grid-template-columns:1fr 1fr;gap:20px;align-items:start}
 .footer-grid>div:nth-child(1){text-align:left}
-.footer-grid>div:nth-child(2){text-align:center}
-.footer-grid>div:nth-child(3){text-align:right}
-footer a,footer p{overflow-wrap:anywhere}
+.footer-grid>div:nth-child(2){text-align:right}
+footer h3{font-size:18px;margin-bottom:14px}
+footer p,footer a{font-size:16px;line-height:2;overflow-wrap:anywhere}
+footer a.ft-link{display:block;width:fit-content;margin:6px 0 6px auto;padding:3px 14px;border-radius:20px;background:rgba(37,211,102,.14);border:1px solid #25D366;color:#25D366;font-weight:bold;line-height:1.9}
+footer a.ft-link:hover{background:#25D366;color:#101010}
 @media(max-width:480px){
-  footer{padding:35px 4% 18px}
-  .footer-grid{grid-template-columns:1fr 1.3fr 1fr;gap:8px}
-  footer h3{font-size:10.5px;margin-bottom:10px}
-  footer p,footer a{font-size:10.5px;line-height:1.9}
+  footer{padding:35px 5% 18px}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:12px}
+  footer h3{font-size:15px;margin-bottom:10px}
+  footer p,footer a{font-size:14px;line-height:1.9}
+  footer a.ft-link{padding:3px 11px}
 }
+
+/* ---- cart discount ---- */
+.cart-note{font-size:11px;color:#888;line-height:1.5;margin-top:6px}
+#cartDiscRow{color:#1f7a5c;font-weight:bold}
+#cartDiscRow[hidden]{display:none}
 
 /* ---- 4. ORDER NOW button colour (green) ---- */
 .product-actions button:nth-child(2):not(:disabled),.m-buy .btn.alt:not(:disabled){background:#1f7a5c;color:#fff;border-color:#1f7a5c;font-weight:bold}
@@ -400,6 +408,7 @@ footer a,footer p{overflow-wrap:anywhere}
         <button type="button" onclick="menuGo('all')">All Products</button>
         <button type="button" onclick="menuGo('best')">Best Selling</button>
         <button type="button" onclick="menuGo('combo')">Combo</button>
+        <button type="button" onclick="menuGo('pouch')">Perfume Bottle &amp; Pouch</button>
         <button type="button" onclick="menuGo('new')">New Arrivals</button>
         <button type="button" onclick="menuGo('offer')">Offer Product</button>
       </div>
@@ -482,14 +491,10 @@ footer a,footer p{overflow-wrap:anywhere}
       <a href="#combo">Combo Package</a>
     </div>
     <div>
-      <h3>NAZIM LUXURY FRAGRANCES</h3>
-      <p>Discover premium fragrances and make every moment unforgettable.</p>
-    </div>
-    <div>
       <h3>CONTACT US</h3>
       <p>WhatsApp: 01881474813</p>
-      <a href="https://wa.me/8801881474813" target="_blank" rel="noopener">WhatsApp Order</a>
-      <a href="https://www.facebook.com/share/1FcD6rvZbJ/" target="_blank" rel="noopener">Facebook Page</a>
+      <a class="ft-link" href="https://wa.me/8801881474813" target="_blank" rel="noopener">WhatsApp Order</a>
+      <a class="ft-link" href="https://www.facebook.com/share/1FcD6rvZbJ/" target="_blank" rel="noopener">Facebook Page</a>
     </div>
   </div>
   <div class="copyright">© 2026 Nazim Luxury Fragrances. All Rights Reserved.</div>
@@ -504,8 +509,10 @@ footer a,footer p{overflow-wrap:anywhere}
   <div id="cartItems"></div>
   <div class="cart-sum">
     <div><span>Subtotal</span><span id="cartSub">৳0</span></div>
+    <div id="cartDiscRow" hidden><span id="cartDiscLabel">Discount</span><span id="cartDisc">-৳0</span></div>
     <div><span id="cartDelLabel">Delivery charge</span><span id="cartDel">৳0</span></div>
   </div>
+  <div class="cart-note">Discount: 1–5 items 5% · 6–10 items 7% · 11+ items 10%. No discount on combo and perfume bottle &amp; pouch. Delivery ৳150 when more than 5 items (bottle &amp; pouch not counted).</div>
   <div class="cart-total"><span>Total</span><span id="cartTotal">৳0</span></div>
   <button type="button" class="checkout-btn" onclick="checkout()">ORDER ON WHATSAPP</button>
 </div>
@@ -534,6 +541,28 @@ footer a,footer p{overflow-wrap:anywhere}
 const WHATSAPP = "8801881474813";
 const DELIVERY_CHARGE = 120;   // normal delivery charge (৳)
 const COMBO_DELIVERY = 49;     // delivery charge when the order has a combo package (৳)
+const BIG_DELIVERY = 150;      // delivery charge when the order has more than 5 items (৳)
+const BIG_ORDER_QTY = 5;       // more than this many items (pouch/bottle not counted) -> BIG_DELIVERY
+/* quantity discount: 1-5 items 5%, 6-10 items 7%, 11+ items 10% (no discount on combo / bottle & pouch) */
+function discountRate(qty){ return qty > 10 ? 0.10 : qty > 5 ? 0.07 : qty >= 1 ? 0.05 : 0; }
+/* "Perfume Bottle & Pouch" category */
+function isPouch(p){
+  return /bottle|pouch|বোতল|পাউচ/i.test(String(p && p.category || "")) || /pouch|perfume bottle/i.test(String(p && p.name || ""));
+}
+/* one place that works out discount + delivery for a list of {price, qty, combo, pouch} */
+function calcOrder(items){
+  const sub = items.reduce((s,i)=>s+i.price*i.qty, 0);
+  const combo = items.some(i=>i.combo);
+  const eligible = items.filter(i=>!i.combo && !i.pouch);
+  const eligQty = eligible.reduce((s,i)=>s+i.qty, 0);
+  const eligSub = eligible.reduce((s,i)=>s+i.price*i.qty, 0);
+  const rate = discountRate(eligQty);
+  const discount = Math.round(eligSub * rate);
+  const countQty = items.filter(i=>!i.pouch).reduce((s,i)=>s+i.qty, 0);
+  const baseDel = countQty > BIG_ORDER_QTY ? BIG_DELIVERY : DELIVERY_CHARGE;
+  const delivery = items.length ? (combo ? COMBO_DELIVERY : baseDel) : 0;
+  return {sub, discount, rate, delivery, combo, total: sub - discount + delivery};
+}
 const SUPABASE_URL = "https://eknfimlojduysyhnsths.supabase.co";
 // Publishable (public) key only. NEVER put a service_role / secret key here.
 const SUPABASE_KEY = "sb_publishable_o7UlzZz__4aylMzGQyzurA_kvFk57g6";
@@ -869,6 +898,7 @@ function menuGo(key){
   if(key === "female") return showCollection("For Female", p => (p.genders || []).includes("female"));
   if(key === "unisex") return showCollection("Unisex", p => (p.genders || []).includes("unisex"));
   if(key === "offer") return showCollection("Offer Products", hasOffer);
+  if(key === "pouch") return showCollection("Perfume Bottle & Pouch", isPouch);
   resetView();
   if(key === "all") return scrollToId("products");
   const target = {best:"best-selling", combo:"combo", new:"new-arrivals"}[key];
@@ -948,10 +978,11 @@ function loadCart(){
 }
 
 function cartTotals(){
-  const sub = cart.reduce((s,p)=>s+p.price*p.qty,0);
-  const combo = cart.some(p=>p.combo);
-  const delivery = cart.length ? (combo ? COMBO_DELIVERY : DELIVERY_CHARGE) : 0;
-  return {sub, delivery, combo, total: sub + delivery};
+  return calcOrder(cart.map(i => {
+    let pouch = i.pouch;
+    if(typeof pouch !== "boolean"){ const pr = findProduct(i.id); pouch = pr ? isPouch(pr) : false; }
+    return {price:i.price, qty:i.qty, combo:!!i.combo, pouch};
+  }));
 }
 
 function maxQty(p){
@@ -985,7 +1016,7 @@ function addToCart(id, qty){
     if(qty <= 0) return;
   }
   if(existing) existing.qty += qty;
-  else cart.push({id:p.id,name:p.name,size:p.size||"",price:unitPrice(p),combo:p.sections.includes("combo"),qty});
+  else cart.push({id:p.id,name:p.name,size:p.size||"",price:unitPrice(p),combo:p.sections.includes("combo"),pouch:isPouch(p),qty});
   updateCart();
   bumpCart();
   toast("Added to cart ✓");
@@ -1027,8 +1058,12 @@ function updateCart(){
     : "Your cart is empty.";
   const t = cartTotals();
   document.getElementById("cartSub").textContent = "৳" + t.sub;
+  const dr = document.getElementById("cartDiscRow");
+  dr.hidden = !(t.discount > 0);
+  document.getElementById("cartDiscLabel").textContent = "Discount (" + Math.round(t.rate*100) + "%)";
+  document.getElementById("cartDisc").textContent = "-৳" + t.discount;
   document.getElementById("cartDel").textContent = "৳" + t.delivery;
-  document.getElementById("cartDelLabel").textContent = t.combo ? "Delivery charge (combo offer)" : "Delivery charge";
+  document.getElementById("cartDelLabel").textContent = t.combo ? "Delivery charge (combo offer)" : (t.delivery === BIG_DELIVERY ? "Delivery charge (6+ items)" : "Delivery charge");
   document.getElementById("cartTotal").textContent = "৳" + t.total;
   saveCart();
 }
@@ -1074,8 +1109,9 @@ function orderNow(id, qty){
   if(qty > max){ toast("Only " + max + " available in stock"); return; }
   const unit = unitPrice(p);
   const sub = unit * qty;
-  const del = p.sections.includes("combo") ? COMBO_DELIVERY : DELIVERY_CHARGE;
-  openWhatsApp(`Hello Nazim Luxury Fragrances, I want to order:\n\n${p.name}${p.size?"\nSize: "+p.size:""}\nPrice: ৳${unit}\nQuantity: ${qty}\nSubtotal: ৳${sub}\nDelivery charge: ৳${del}\nTotal: ৳${sub+del}`+ORDER_FOOTER);
+  const o = calcOrder([{price:unit, qty, combo:p.sections.includes("combo"), pouch:isPouch(p)}]);
+  const discLine = o.discount > 0 ? `\nDiscount (${Math.round(o.rate*100)}%): -৳${o.discount}` : "";
+  openWhatsApp(`Hello Nazim Luxury Fragrances, I want to order:\n\n${p.name}${p.size?"\nSize: "+p.size:""}\nPrice: ৳${unit}\nQuantity: ${qty}\nSubtotal: ৳${sub}${discLine}\nDelivery charge: ৳${o.delivery}\nTotal: ৳${o.total}`+ORDER_FOOTER);
 }
 
 function checkout(){
@@ -1083,7 +1119,7 @@ function checkout(){
   const lines = cart.map(p=>`${p.name}${p.size?" ("+p.size+")":""} - ৳${p.price} x ${p.qty}`);
   const t = cartTotals();
   openWhatsApp("Hello Nazim Luxury Fragrances, I want to order:\n\n"+
-    lines.join("\n")+"\n\nSubtotal: ৳"+t.sub+"\nDelivery charge: ৳"+t.delivery+"\nTotal: ৳"+t.total+ORDER_FOOTER);
+    lines.join("\n")+"\n\nSubtotal: ৳"+t.sub+(t.discount>0 ? "\nDiscount ("+Math.round(t.rate*100)+"%): -৳"+t.discount : "")+"\nDelivery charge: ৳"+t.delivery+"\nTotal: ৳"+t.total+ORDER_FOOTER);
 }
 
 /* ---------- Product details popup ---------- */
@@ -1728,7 +1764,7 @@ loadProducts().then(() => {
   cart = cart.filter(i => findProduct(i.id));
   cart.forEach(i => {
     const p = findProduct(i.id);
-    i.price = unitPrice(p); i.size = p.size || ""; i.combo = p.sections.includes("combo");
+    i.price = unitPrice(p); i.size = p.size || ""; i.combo = p.sections.includes("combo"); i.pouch = isPouch(p);
   });
   updateCart();
   loadRatingStats();   // star ratings on the cards
