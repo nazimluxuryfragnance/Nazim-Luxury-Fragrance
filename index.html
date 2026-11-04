@@ -231,15 +231,9 @@ body.lock{overflow:hidden}
 .lb-tools{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:3}
 .lb-tools button{min-width:46px;height:42px;border:0;border-radius:22px;background:#fff3;color:#fff;font-size:18px;padding:0 14px}
 @media(min-width:700px){.modal{align-items:center}.modal-box{border-radius:12px}}
-.hero-wrap{position:relative;overflow:hidden;background:#111}
-.hero-slide{transition:opacity .9s ease}
-.hero-wrap.has-ads .hero-slide:not(.on){opacity:0;pointer-events:none}
-.hero-slide.ad{position:absolute;inset:0;background:#111;overflow:hidden}
+.hero-slide.ad{background:#111;overflow:hidden}
 .hero-slide.ad::before{content:"";position:absolute;inset:-24px;background:var(--bg) center/cover no-repeat;filter:blur(22px) brightness(.65)}
 .hero-slide.ad img{position:relative;width:100%;height:100%;object-fit:contain;display:block}
-.hero-dots{position:absolute;bottom:14px;left:0;right:0;text-align:center;z-index:4;pointer-events:none}
-.hero-dots button{width:9px;height:9px;margin:0 4px;padding:0;border:0;border-radius:50%;background:#fff8}
-.hero-dots button.on{background:var(--gold);width:22px;border-radius:6px}
 .features{border-top:1px solid #e8e3d8}
 .offer-tag{background:#d11}
 .m-price .price{font-size:inherit}
@@ -277,8 +271,6 @@ header{animation:slideDown .7s ease backwards}
 .hero-slide.on h1{animation:fadeUp .8s .3s ease backwards}
 .hero-slide.on p{animation:fadeUp .8s .45s ease backwards}
 .hero-slide.on .gold-btn{animation:fadeUp .8s .6s ease backwards,glow 2.6s 1.6s ease-out infinite}
-.hero-slide{transition:opacity .9s ease,transform 1.2s ease}
-.hero-wrap.has-ads .hero-slide:not(.on){transform:scale(1.04)}
 .hero-slide.ad.on img{animation:adIn 1.4s ease backwards}
 .section-heading h2{position:relative;overflow:hidden}
 .section-heading h2::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);animation:shine 5s ease-in-out infinite}
@@ -330,11 +322,35 @@ header{animation:slideDown .7s ease backwards}
 /* ---- sold out = red ---- */
 .tag.soldout{background:#d11;color:#fff}
 .m-buy .btn:disabled{background:#d11;color:#fff;border-color:#d11;opacity:.85}
-/* ---- hero banner: slides in from right to left ---- */
-.hero-wrap.has-ads .hero-slide:not(.on):not(.out){opacity:1;transform:translateX(100%);transition:none;pointer-events:none}
-.hero-wrap.has-ads .hero-slide.on{opacity:1;transform:translateX(0);transition:transform .9s cubic-bezier(.65,0,.35,1)}
-.hero-wrap.has-ads .hero-slide.out{opacity:1;transform:translateX(-100%);transition:transform .9s cubic-bezier(.65,0,.35,1);pointer-events:none}
+/* ---- hero slideshow: card carousel (sizes taken from the reference video, 480px wide screen) ----
+   card: 14px side margin, 208px tall, 16px radius | band: 50px above the card, dots 25px below it
+   current card = full size, the card leaving / arriving shrinks to 86% and slides left / from the right */
+.hero-band{background:#f8f6f1}
+.hero-wrap{position:relative;overflow:hidden;height:313px;max-width:960px;margin:0 auto}
+.hero-wrap .hero-slide{position:absolute;top:50px;left:14px;width:calc(100% - 28px);height:208px;min-height:0;
+  border-radius:16px;overflow:hidden;background:#111;
+  box-shadow:0 2px 10px rgba(40,60,90,.28),0 0 0 1px rgba(60,70,90,.10);
+  transform:translateX(calc(100% + 14px)) scale(.86);
+  transition:transform .8s cubic-bezier(.4,0,.2,1);will-change:transform;pointer-events:none}
+.hero-wrap .hero-slide.on{transform:none;pointer-events:auto}
+.hero-wrap .hero-slide.out{transform:translateX(calc(-100% - 14px)) scale(.86)}
+.hero-wrap .hero-slide.nt{transition:none}
+.hero-wrap .hero.hero-slide{display:flex;align-items:center;padding:0 22px}
+.hero-wrap .hero .hero-content{max-width:520px}
+.hero-wrap .hero .eyebrow{font-size:10px;letter-spacing:3px}
+.hero-wrap .hero h1{font-size:24px;line-height:1.2;margin:8px 0 0}
+.hero-wrap .hero p{display:none}
+.hero-wrap .hero .gold-btn{padding:9px 18px;font-size:11px;margin-top:14px}
+@media(min-width:700px){
+  .hero-wrap .hero.hero-slide{padding:0 48px}
+  .hero-wrap .hero h1{font-size:30px}
+  .hero-wrap .hero p{display:block;font-size:14px;line-height:1.5;margin-top:8px}
+}
 .hero-slide.ad.on img{animation:none}
+.hero-dots{position:absolute;top:283px;left:0;right:0;display:flex;justify-content:center;gap:4px;z-index:4;pointer-events:none}
+.hero-dots button{position:relative;width:8px;height:8px;margin:0;padding:0;border:0;border-radius:50%;background:#b9c2cc;pointer-events:auto;transition:width .3s ease,background .3s ease}
+.hero-dots button::before{content:"";position:absolute;inset:-8px -2px}
+.hero-dots button.on{width:32px;border-radius:4px;background:var(--gold)}
 /* ---- text rises up while scrolling ---- */
 .js-anim .product:not(.in){opacity:0;transform:translateY(40px)}
 .js-anim .product.in{opacity:1;transform:none;transition:opacity .7s ease,transform .7s ease,box-shadow .25s}
@@ -421,6 +437,7 @@ footer a.ft-link:hover{background:#25D366;color:#101010}
 </div>
 </div>
 
+<div class="hero-band">
 <div class="hero-wrap" id="heroWrap">
 <section class="hero hero-slide on">
   <div class="hero-content">
@@ -431,6 +448,7 @@ footer a.ft-link:hover{background:#25D366;color:#101010}
   </div>
 </section>
 <div class="hero-dots" id="heroDots"></div>
+</div>
 </div>
 
 <section class="section" id="new-arrivals">
@@ -1613,29 +1631,54 @@ async function setupAds(urls, seconds){
   wrap.classList.add("has-ads");
 
   let cur = 0;
-  const show = i => {
-    const prev = cur;
+  const place = (el, cls) => { el.classList.remove("on", "out"); if(cls) el.classList.add(cls); };
+  const mark = () => dots.querySelectorAll("button").forEach((b, k) => b.classList.toggle("on", k === cur));
+  // dir 1: new card comes from the right, old one leaves to the left (dir -1: the other way round)
+  const go = (i, dir) => {
+    if(i === cur) return;
+    const from = slides[cur], to = slides[i];
+    slides.forEach(s => { if(s !== from) s.classList.add("nt"); });
+    slides.forEach(s => { if(s !== from && s !== to) place(s, null); });
+    place(to, dir > 0 ? null : "out");           // park the new card on its starting side
+    void wrap.offsetWidth;                         // apply that without animation
+    slides.forEach(s => s.classList.remove("nt"));
+    place(to, "on");
+    place(from, dir > 0 ? "out" : null);
     cur = i;
-    slides.forEach((s, k) => {
-      s.classList.toggle("on", k === i);
-      s.classList.toggle("out", k === prev && k !== i);
-    });
-    dots.querySelectorAll("button").forEach((b, k) => b.classList.toggle("on", k === i));
+    mark();
   };
   slides.forEach((_, i) => {
     const b = document.createElement("button");
     b.type = "button";
     b.setAttribute("aria-label", "Slide " + (i + 1));
+    b.addEventListener("click", () => { if(i !== cur){ go(i, i > cur ? 1 : -1); restart(); } });
     dots.appendChild(b);
   });
   const restart = () => {
     clearInterval(adTimer);
-    adTimer = setInterval(() => show((cur + 1) % slides.length), (seconds || 5) * 1000);
+    adTimer = setInterval(() => go((cur + 1) % slides.length, 1), (seconds || 3) * 1000);
   };
-  show(0);
+  slides.forEach(s => place(s, null));
+  place(slides[0], "on");
+  mark();
   restart();
-  heroGoFirst = () => { show(0); restart(); };
+  heroStep = dir => { go((cur + dir + slides.length) % slides.length, dir); restart(); };
+  heroGoFirst = () => { if(cur !== 0){ go(0, -1); } restart(); };
 }
+let heroStep = null;
+// swipe left / right on the slideshow
+(function(){
+  const w = document.getElementById("heroWrap");
+  if(!w) return;
+  let x0 = null, y0 = 0;
+  w.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, {passive:true});
+  w.addEventListener("touchend", e => {
+    if(x0 === null || !heroStep) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    x0 = null;
+    if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) heroStep(dx < 0 ? 1 : -1);
+  }, {passive:true});
+})();
 let heroGoFirst = null;
 
 /* ---------- Animations ---------- */
