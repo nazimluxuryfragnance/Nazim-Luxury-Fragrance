@@ -393,6 +393,13 @@ footer a.ft-link:hover{background:#25D366;color:#101010}
 #cartDiscRow{color:#1f7a5c;font-weight:bold}
 #cartDiscRow[hidden]{display:none}
 
+/* ---- 11.11 offer countdown ---- */
+.sale-cd{margin-top:10px;background:#fff1f1;border:1px dashed #d11;color:#b00;border-radius:6px;padding:7px 6px;font-size:10px;font-weight:bold;letter-spacing:.3px;text-align:center;line-height:1.5}
+.sale-cd .sc-t{display:block;font-size:14px;letter-spacing:.5px;font-variant-numeric:tabular-nums}
+.sale-cd.live{background:#d11;color:#fff;border-style:solid}
+.m-price + .sale-cd{margin:0 0 12px}
+@media(max-width:480px){.sale-cd .sc-t{font-size:12px}.sale-cd{font-size:9px}}
+
 /* ---- 4. ORDER NOW button colour (green) ---- */
 .product-actions button:nth-child(2):not(:disabled),.m-buy .btn.alt:not(:disabled){background:#1f7a5c;color:#fff;border-color:#1f7a5c;font-weight:bold}
 .product-actions button:nth-child(2):not(:disabled):hover,.m-buy .btn.alt:not(:disabled):hover{background:#17614a;color:#fff;border-color:#17614a}
@@ -530,7 +537,7 @@ footer a.ft-link:hover{background:#25D366;color:#101010}
     <div id="cartDiscRow" hidden><span id="cartDiscLabel">Discount</span><span id="cartDisc">-৳0</span></div>
     <div><span id="cartDelLabel">Delivery charge</span><span id="cartDel">৳0</span></div>
   </div>
-  <div class="cart-note">Discount: 1–5 items 5% · 6–10 items 7% · 11+ items 10%. No discount on combo and perfume bottle &amp; pouch. Delivery ৳150 when more than 5 items (bottle &amp; pouch not counted).</div>
+  <div class="cart-note" id="cartNote">Discount: 1–5 items 5% · 6–10 items 7% · 11+ items 10%. No discount on combo and perfume bottle &amp; pouch. Delivery ৳150 when more than 5 items (bottle &amp; pouch not counted).</div>
   <div class="cart-total"><span>Total</span><span id="cartTotal">৳0</span></div>
   <button type="button" class="checkout-btn" onclick="checkout()">ORDER ON WHATSAPP</button>
 </div>
@@ -562,7 +569,8 @@ const COMBO_DELIVERY = 49;     // delivery charge when the order has a combo pac
 const BIG_DELIVERY = 150;      // delivery charge when the order has more than 5 items (৳)
 const BIG_ORDER_QTY = 5;       // more than this many items (pouch/bottle not counted) -> BIG_DELIVERY
 /* quantity discount: 1-5 items 5%, 6-10 items 7%, 11+ items 10% (no discount on combo / bottle & pouch) */
-function discountRate(qty){ return qty > 10 ? 0.10 : qty > 5 ? 0.07 : qty >= 1 ? 0.05 : 0; }
+function discountRate(qty){ if(saleState() === "live") return 0;   /* no quantity discount on the 11.11 offer day */
+  return qty > 10 ? 0.10 : qty > 5 ? 0.07 : qty >= 1 ? 0.05 : 0; }
 /* "Perfume Bottle & Pouch" category */
 function isPouch(p){
   if(!p) return false;
@@ -816,13 +824,51 @@ document.addEventListener("scroll", e => {
   el.parentElement.querySelectorAll(".dots i").forEach((d, k) => d.classList.toggle("on", k === i));
 }, true);
 
-function hasOffer(p){ return p.offer > 0 && p.offer < p.price; }
-function unitPrice(p){ return hasOffer(p) ? p.offer : p.price; }
+/* ---------- 11.11 offer: 11% off, only on 11 Nov 2026 (Bangladesh time), not on combo / bottle & pouch ---------- */
+const SALE_PCT = 11;
+const SALE_START = new Date("2026-11-11T00:00:00+06:00").getTime();   // offer begins at midnight, 11 Nov
+const SALE_END   = new Date("2026-11-12T00:00:00+06:00").getTime();   // offer ends before 12 Nov
+function saleState(){
+  const n = Date.now();
+  return n < SALE_START ? "before" : (n < SALE_END ? "live" : "ended");
+}
+function saleEligible(p){ return !p.sections.includes("combo") && !isPouch(p); }
+function salePrice(p){ return Math.round(p.price * (100 - SALE_PCT) / 100); }
+/* the price that is valid right now (0 = no offer) */
+function currentOffer(p){
+  // on 11 Nov the flat 11% replaces any older offer price of eligible products
+  if(saleState() === "live" && saleEligible(p)) return salePrice(p);
+  return (p.offer > 0 && p.offer < p.price) ? p.offer : 0;
+}
+function hasOffer(p){ return currentOffer(p) > 0; }
+function unitPrice(p){ return hasOffer(p) ? currentOffer(p) : p.price; }
 function priceHtml(p){
   return hasOffer(p)
-    ? `<s class="old-price">৳${esc(p.price)}</s><span class="price">৳${esc(p.offer)}</span>`
+    ? `<s class="old-price">৳${esc(p.price)}</s><span class="price">৳${esc(unitPrice(p))}</span>`
     : `<span class="price">৳${esc(p.price)}</span>`;
 }
+function fmtCountdown(ms){
+  ms = Math.max(0, ms);
+  const s = Math.floor(ms / 1000);
+  const d = Math.floor(s / 86400), h = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), x = s % 60;
+  const z = v => String(v).padStart(2, "0");
+  return `${d}d ${z(h)}h ${z(m)}m ${z(x)}s`;
+}
+function saleStrip(p){
+  if(!saleEligible(p)) return "";
+  const st = saleState();
+  if(st === "before") return `<div class="sale-cd"><span>11.11 OFFER · ${SALE_PCT}% OFF STARTS IN</span><b class="sc-t">${fmtCountdown(SALE_START - Date.now())}</b></div>`;
+  if(st === "live") return `<div class="sale-cd live">🔥 11.11 OFFER LIVE · ${SALE_PCT}% OFF</div>`;
+  return "";
+}
+let lastSaleState = saleState();
+setInterval(() => {
+  const st = saleState();
+  if(st !== lastSaleState){ lastSaleState = st; location.reload(); return; }   // offer started / ended: refresh prices
+  if(st !== "before") return;
+  const t = fmtCountdown(SALE_START - Date.now());
+  document.querySelectorAll(".sale-cd .sc-t").forEach(e => { e.textContent = t; });
+}, 1000);
 
 function starsHtml(avg){
   const full = Math.max(0, Math.min(5, Math.round(avg)));
@@ -848,6 +894,7 @@ function productCard(p, i){
       ${p.size?`<span class="size">${esc(p.size)}</span>`:""}
       <div class="rating-line" onclick="openProduct('${id}')">${ratingLine(p)}</div>
       ${priceHtml(p)}
+      ${saleStrip(p)}
       <div class="product-actions">
         <button type="button" onclick="addToCart('${id}')" ${soldOut?"disabled":""}>ADD TO CART</button>
         <button type="button" onclick="orderNow('${id}')" ${soldOut?"disabled":""}>ORDER NOW</button>
@@ -1090,6 +1137,9 @@ function updateCart(){
   document.getElementById("cartDel").textContent = "৳" + t.delivery;
   document.getElementById("cartDelLabel").textContent = t.combo ? "Delivery charge (combo offer)" : (t.delivery === BIG_DELIVERY ? "Delivery charge (6+ items)" : "Delivery charge");
   document.getElementById("cartTotal").textContent = "৳" + t.total;
+  if(saleState() === "live"){
+    document.getElementById("cartNote").textContent = "11.11 offer: " + SALE_PCT + "% off is already applied. Quantity discount is not available today. Delivery ৳150 when more than 5 items (bottle & pouch not counted).";
+  }
   saveCart();
 }
 
@@ -1168,6 +1218,7 @@ function openProduct(id){
     ${p.size ? `<span class="size">${esc(p.size)}</span>` : ""}
     <div class="rating-line" id="mRating" style="cursor:default">${ratingLine(p)}</div>
     <div class="m-price">${priceHtml(p)}</div>
+    ${saleStrip(p)}
     <p class="m-desc">${esc(p.description)}</p>
     <div class="m-buy">
       <div class="qty">
